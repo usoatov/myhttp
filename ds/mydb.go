@@ -275,9 +275,22 @@ func Isactive(emp_id string) bool {
 
 func Isfinger(emp_id string) bool {
 	fmt.Println("Is finger bosh")
-	var isf string
-	//rows, err := db.Query("select devicegroupid from devicetype where id in (select devicetypeid from device where id=?)", d_id)
-	rows, err := db.Query("select isfingerprint from policy where id in (select policyid from employee where id=?)", emp_id)
+	var isf, pid string
+	//rows, err := db.Query("select isFingerprint from policy where ID in (select policyID from employee where ID=?)", emp_id)
+	rows, err := db.Query("select policyid from employee where id=?", emp_id)
+	if err != nil {
+		log.Print(err)
+	}
+	defer rows.Close()
+	for rows.Next() {
+		err := rows.Scan(&pid)
+		if err != nil {
+			log.Print(err)
+		}
+	}
+	fmt.Println("====  PolicyID = ", pid)
+
+	rows, err = db.Query("select isFingerprint from policy where ID=?", pid)
 	if err != nil {
 		log.Print(err)
 	}
@@ -288,18 +301,19 @@ func Isfinger(emp_id string) bool {
 			log.Print(err)
 		}
 	}
+
 	if isf == "1" {
-		fmt.Println("Is finger bosh")
+		fmt.Println("Is finger tug")
 		return true
 	} else {
-		fmt.Println("Is finger bosh")
+		fmt.Println("Is finger tug")
 		return false
 	}
 
 }
 
 func Add_FP_Base(emp_id, fid int, fp []byte, st, devgr int) bool {
-	fmt.Println("Add FP Base EMP=", emp_id, "FID=", fid, fp, st, devgr)
+	//fmt.Println("Add FP Base EMP=", emp_id, "FID=", fid, fp, st, devgr)
 	//sqlstr := "INSERT INTO fingerprint (employeeid, finger, fingerprint, state, devicegroupid) VALUES(" + emp_id + ", " + fid + ", '" + fp + "', " + st + ", " + devgr + ")"
 
 	/*	stmt, err := db.Prepare("INSERT INTO `fingerprint` (employeeid, finger, fingerprint, state, devicegroupid) VALUES(?, ?, ?, ?, ?)")
@@ -343,6 +357,7 @@ func Add_FP_Base(emp_id, fid int, fp []byte, st, devgr int) bool {
 }
 
 func Get_location(d_id string) string {
+	fmt.Println("Get loc boshlandi")
 	var loc_id string
 
 	err := db.QueryRow("select locationid from device where id = ?", d_id).Scan(&loc_id)
@@ -350,13 +365,14 @@ func Get_location(d_id string) string {
 		log.Print(err)
 		return ""
 	}
+	fmt.Println("Get loc tugadi")
 	return loc_id
 }
 
-func Get_loc_devices(loc_id string) []string {
+func Get_loc_devices(loc_id string, d_gr int) []string {
 	var devs []string
 
-	rows, err := db.Query("select id from device where locationid=?)", loc_id)
+	rows, err := db.Query("select id from device where locationid=? and devicetypeid in (select id from devicetype where devicegroupid=?)", loc_id, d_gr)
 	if err != nil {
 		log.Print(err)
 	}
@@ -401,16 +417,16 @@ func InsertOplogData(sn, line string) bool {
 			}
 		}
 		emp_id := PinFromCompany(companyid, pin)
-		fmt.Println("My pin=", pin, "fid=", fid, "tmp=", tmp, emp_id)
+		//fmt.Println("My pin=", pin, "fid=", fid, "tmp=", tmp, emp_id)
 		//fingerprint = strtoupper(bin2hex(base64_decode($data[4])))
 
 		fp, err := base64.StdEncoding.DecodeString(tmp)
 		if err != nil {
 			fmt.Println("error:", err)
 		}
-		fmt.Println("--- base64  ---", fp)
+		//fmt.Println("--- base64  ---", fp)
 		fpt := strings.ToUpper(hex.EncodeToString(fp))
-		fmt.Println("--- HEX  ---", fpt)
+		//fmt.Println("--- HEX  ---", fpt)
 		dev_group := Device_Group(d_id)
 		var ext_name string
 		/*const ZKT      = 1;
@@ -437,8 +453,13 @@ func InsertOplogData(sn, line string) bool {
 				if Isactive(emp_id) && Isfinger(emp_id) {
 					loc_id := Get_location(d_id)
 					if loc_id != "" {
-						devs := Get_loc_devices(loc_id)
+						devs := Get_loc_devices(loc_id, dev_group)
 						fmt.Println("*- Devs **", devs)
+						for i := range devs {
+							devid := devs[i]
+							fmt.Println(devid)
+
+						}
 
 					}
 
