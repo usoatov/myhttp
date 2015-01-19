@@ -1,0 +1,549 @@
+package mydb
+
+import (
+	"database/sql"
+	"encoding/base64"
+	"encoding/hex"
+	"fmt"
+	"log"
+	"strconv"
+	"strings"
+
+	"github.com/coopernurse/gorp"
+	logs "github.com/usoatov/my_htt/fl"
+
+	_ "github.com/go-sql-driver/mysql"
+)
+
+type Opts struct {
+	Stamp      string
+	Opstamp    string
+	Photostamp string
+	Errdel     string
+	Delay      string
+	Transtime  string
+	Transint   string
+	Realtime   string
+	Encrypt    string
+	Timezone   string
+}
+
+type Oplog struct {
+	Opcode, Adminid, DtTime, Obj1, Obj2, Obj3, Obj4 string
+}
+
+type Cmd struct {
+	Id, Cmdbody string
+}
+
+var db *sql.DB
+
+func Connect(mdb, host, usr, pwd string) bool {
+	var err error
+	fmt.Println(mdb, host, usr, pwd)
+	s := fmt.Sprintf("%s:%s@tcp(%s:3306)/%s", usr, pwd, host, mdb)
+	db, err = sql.Open("mysql", s)
+	if err != nil {
+		log.Print(err)
+		return false
+	}
+	err = db.Ping()
+	return true
+
+}
+
+func Dev_id(sn string) string {
+	var d_id string
+	rows, err := db.Query("select id from device where serialnumber=?", sn)
+	//	rows, err := db.Query("select attLogStamp as Stamp from device where serialnumber=?", sn)
+	if err != nil {
+		log.Print(err)
+	}
+	defer rows.Close()
+	for rows.Next() {
+		err := rows.Scan(&d_id)
+		if err != nil {
+			log.Println("ERROR in Scan")
+			log.Print(err)
+		}
+	}
+
+	return d_id
+}
+
+func Comp_id(sn string) string {
+	var c_id string
+	rows, err := db.Query("select companyID from device where serialnumber=?", sn)
+
+	if err != nil {
+		log.Print(err)
+	}
+	defer rows.Close()
+	for rows.Next() {
+		err := rows.Scan(&c_id)
+		if err != nil {
+			log.Println("ERROR in Scan")
+			log.Print(err)
+		}
+	}
+
+	return c_id
+}
+
+func Options(sn string) Opts {
+	var opres Opts
+	rows, err := db.Query("select attLogStamp, operLogStamp, photoStamp, errorDelay, delay, transTimes, transInterval, realtime, encrypt, timeZoneAdj from device where serialnumber=?", sn)
+	//	rows, err := db.Query("select attLogStamp as Stamp from device where serialnumber=?", sn)
+	if err != nil {
+		log.Print(err)
+	}
+	defer rows.Close()
+	for rows.Next() {
+		err := rows.Scan(&opres.Stamp, &opres.Opstamp, &opres.Photostamp, &opres.Errdel, &opres.Delay, &opres.Transtime, &opres.Transint, &opres.Realtime, &opres.Encrypt, &opres.Timezone)
+		if err != nil {
+			log.Println("ERROR in Scan")
+			log.Print(err)
+		}
+	}
+	fmt.Println(opres.Stamp)
+	fmt.Println(opres.Opstamp)
+
+	return opres
+}
+
+func Lastrequesttime(sn string) bool {
+	stmt, err := db.Prepare("update device set lastRequestTime=NOW() where serialnumber=?")
+	if err != nil {
+		log.Print(err)
+	}
+	res, err := stmt.Exec(sn)
+	if err != nil {
+		log.Print(err)
+		log.Print(res)
+		return false
+	}
+	return true
+}
+
+func Transfertime(id string) bool {
+	stmt, err := db.Prepare("update devicecmds set commandTransferTime=NOW() where id=?")
+	if err != nil {
+		log.Print(err)
+	}
+	res, err := stmt.Exec(id)
+	if err != nil {
+		log.Print(err)
+		log.Print(res)
+		return false
+	}
+	return true
+}
+
+func InsertTempinout(sn, line string) bool {
+	ls := strings.Split(line, "\t")
+	pin := ls[0]
+	dt := ls[1]
+	eventcode := ls[2]
+	verify := ls[3]
+	fmt.Println("pin=", pin, "dt=", dt, eventcode, verify)
+
+	stmt, err := db.Prepare("INSERT INTO `temp_inout` (deviceSN, pin, time, status, verify) VALUES(?, ?, ?, ?, ?)")
+	if err != nil {
+		log.Print(err)
+	}
+	res, err := stmt.Exec(sn, pin, dt, eventcode, verify)
+	if err != nil {
+		log.Print(err)
+		log.Print(res)
+		return false
+	}
+
+	return true
+}
+
+func Device_Pin(d_id, pincode string) string {
+	var emp string
+	rows, err := db.Query("select employeeID from devicepin where deviceID=? and pinCode=?", d_id, pincode)
+	if err != nil {
+		log.Print(err)
+	}
+	defer rows.Close()
+	for rows.Next() {
+		err := rows.Scan(&emp)
+		if err != nil {
+			log.Print(err)
+			emp = ""
+		}
+		return emp
+	}
+	return emp
+
+}
+
+func DeleteAllFP(emp_id string) {
+	stmt, err := db.Prepare("delete from fingerprint where employeeID=?")
+	if err != nil {
+		log.Print(err)
+	}
+	_, err = stmt.Exec(emp_id)
+	if err != nil {
+		log.Print(err)
+	}
+
+}
+
+func Update_pwd(emp_id, pwd string) {
+
+	var s sql.NullString
+
+	if pwd != "" {
+		s.String = pwd
+	}
+
+	stmt, err := db.Prepare("update employee set passwd=? where ID=?")
+	if err != nil {
+		log.Print(err)
+	}
+
+	_, err = stmt.Exec(s, emp_id)
+	if err != nil {
+		log.Print(err)
+	} else {
+		fmt.Println("Password " + pwd + "ga uzgardi")
+	}
+
+}
+
+func PinFromCompany(cmp_id, pin string) string {
+	var emp string
+	rows, err := db.Query("select id from employee where companyID=? and pinCode=? and state='active'", cmp_id, pin)
+	if err != nil {
+		log.Print(err)
+	}
+	defer rows.Close()
+	for rows.Next() {
+		err := rows.Scan(&emp)
+		if err != nil {
+			log.Print(err)
+			emp = ""
+		}
+		return emp
+	}
+	return emp
+
+}
+
+func Device_Group(d_id string) int {
+	var d_gr int
+	rows, err := db.Query("select devicegroupid from devicetype where id in (select devicetypeid from device where id=?)", d_id)
+	if err != nil {
+		log.Print(err)
+	}
+	defer rows.Close()
+	for rows.Next() {
+		err := rows.Scan(&d_gr)
+		if err != nil {
+			log.Print(err)
+		}
+	}
+	return d_gr
+}
+
+func Isactive(emp_id string) bool {
+	fmt.Println("Isactive boshlandi")
+	var id string
+	rows, err := db.Query("select id from employee where ID=? and state='active'", emp_id)
+	if err != nil {
+		log.Print(err)
+	}
+	defer rows.Close()
+	for rows.Next() {
+		err := rows.Scan(&id)
+		if err != nil {
+			log.Print(err)
+		}
+	}
+	if id == "" {
+		fmt.Println("Isactive tugadi")
+		return false
+	} else {
+		fmt.Println("Isactive tugadi")
+		return true
+	}
+
+}
+
+func Isfinger(emp_id string) bool {
+	fmt.Println("Is finger bosh")
+	var isf string
+	//rows, err := db.Query("select devicegroupid from devicetype where id in (select devicetypeid from device where id=?)", d_id)
+	rows, err := db.Query("select isfingerprint from policy where id in (select policyid from employee where id=?)", emp_id)
+	if err != nil {
+		log.Print(err)
+	}
+	defer rows.Close()
+	for rows.Next() {
+		err := rows.Scan(&isf)
+		if err != nil {
+			log.Print(err)
+		}
+	}
+	if isf == "1" {
+		fmt.Println("Is finger bosh")
+		return true
+	} else {
+		fmt.Println("Is finger bosh")
+		return false
+	}
+
+}
+
+func Add_FP_Base(emp_id, fid int, fp []byte, st, devgr int) bool {
+	fmt.Println("Add FP Base EMP=", emp_id, "FID=", fid, fp, st, devgr)
+	//sqlstr := "INSERT INTO fingerprint (employeeid, finger, fingerprint, state, devicegroupid) VALUES(" + emp_id + ", " + fid + ", '" + fp + "', " + st + ", " + devgr + ")"
+
+	/*	stmt, err := db.Prepare("INSERT INTO `fingerprint` (employeeid, finger, fingerprint, state, devicegroupid) VALUES(?, ?, ?, ?, ?)")
+		if err != nil {
+			log.Print(err)
+		}
+		res, err := stmt.Exec(emp_id, fid, fp, st, devgr)
+		fmt.Println(stmt)*/
+	/*res, err := db.Exec(sqlstr, emp_id, 0, "")
+	if err != nil {
+		log.Print(err)
+		log.Print(res)
+		return false
+	}*/
+
+	type Finger struct {
+		Id            int    `db:"ID"`
+		Employeeid    int    `db:"employeeID"`
+		Finger        int    `db:"finger"`
+		Fingerprint   []byte `db:"fingerprint"`
+		State         int    `db:"state"`
+		Devicegroupid int    `db:"devicegroupID"`
+	}
+
+	// construct a gorp DbMap
+	dbmap := &gorp.DbMap{Db: db, Dialect: gorp.MySQLDialect{"InnoDB", "UTF8"}}
+	//table := dbmap.AddTable(Finger{})
+	dbmap.AddTableWithName(Finger{}, "fingerprint").SetKeys(true, "ID")
+	ff := Finger{Employeeid: 7424,
+		Finger:        fid,
+		Fingerprint:   fp,
+		State:         st,
+		Devicegroupid: devgr}
+	err := dbmap.Insert(&ff)
+	if err != nil {
+		return false
+	}
+
+	return true
+
+}
+
+func Get_location(d_id string) string {
+	var loc_id string
+
+	err := db.QueryRow("select locationid from device where id = ?", d_id).Scan(&loc_id)
+	if err != nil {
+		log.Print(err)
+		return ""
+	}
+	return loc_id
+}
+
+func Get_loc_devices(loc_id string) []string {
+	var devs []string
+
+	rows, err := db.Query("select id from device where locationid=?)", loc_id)
+	if err != nil {
+		log.Print(err)
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var tmp_d string
+		err := rows.Scan(&tmp_d)
+		devs = append(devs, tmp_d)
+		if err != nil {
+			log.Print(err)
+		}
+	}
+
+	return devs
+}
+
+func InsertOplogData(sn, line string) bool {
+	companyid := Comp_id(sn)
+	d_id := Dev_id(sn)
+	delim := strings.Split(line, " ")
+	tip := delim[0]
+
+	for i := range delim {
+		fmt.Println("delim [", i, delim[i])
+	}
+
+	if tip == "FP" {
+		keyvalue := strings.Split(delim[1], "\t")
+		var pin, fid, tmp string
+		for i := range keyvalue {
+			fmt.Println("keyvalue[", i, "]=", keyvalue[i])
+			data := strings.Split(keyvalue[i], "=")
+			if data[0] == "PIN" {
+				pin = data[1]
+			}
+			if data[0] == "FID" {
+				fid = data[1]
+			}
+			if data[0] == "TMP" {
+				s := keyvalue[i]
+				tmp = s[4:]
+			}
+		}
+		emp_id := PinFromCompany(companyid, pin)
+		fmt.Println("My pin=", pin, "fid=", fid, "tmp=", tmp, emp_id)
+		//fingerprint = strtoupper(bin2hex(base64_decode($data[4])))
+
+		fp, err := base64.StdEncoding.DecodeString(tmp)
+		if err != nil {
+			fmt.Println("error:", err)
+		}
+		fmt.Println("--- base64  ---", fp)
+		fpt := strings.ToUpper(hex.EncodeToString(fp))
+		fmt.Println("--- HEX  ---", fpt)
+		dev_group := Device_Group(d_id)
+		var ext_name string
+		/*const ZKT      = 1;
+		  const TERMINAL   = 2;
+		  const ANVIZ      = 3;*/
+		if dev_group == 1 {
+			// ZK Device
+			ext_name = "_FPDbfile.fpt"
+		}
+		if dev_group == 3 {
+			// Anviz device
+			ext_name = "_FPDbfile.avz"
+		}
+		fname := "../../device_logs/fps/" + emp_id + ext_name
+		logs.Wr_file(fname, fpt)
+
+		emp_id = Device_Pin(d_id, pin)
+
+		if emp_id != "" {
+			// FP ni bazaga saqlash
+			e, _ := strconv.Atoi(emp_id)
+			fi, _ := strconv.Atoi(fid)
+			if Add_FP_Base(e, fi, []byte(fpt), 1, dev_group) {
+				if Isactive(emp_id) && Isfinger(emp_id) {
+					loc_id := Get_location(d_id)
+					if loc_id != "" {
+						devs := Get_loc_devices(loc_id)
+						fmt.Println("*- Devs **", devs)
+
+					}
+
+				}
+
+			}
+
+		}
+
+	}
+	if tip == "USER" {
+		keyvalue := strings.Split(delim[1], "\t")
+		var pin, passw string
+		for i := range keyvalue {
+			value := strings.Split(keyvalue[i], "=")
+			if value[0] == "PIN" {
+				pin = value[1]
+
+			}
+			if value[0] == "Passwd" {
+				passw = value[1]
+			}
+			emp_id := PinFromCompany(companyid, pin)
+			if passw != "" {
+				Update_pwd(emp_id, passw)
+
+			}
+			fmt.Println(passw, emp_id)
+		}
+
+	}
+	if tip == "OPLOG" {
+		delim[1] = delim[1] + " " + delim[2]
+		var opl Oplog
+		oplogs := strings.Split(delim[1], "\t")
+		opl.Opcode = oplogs[0]
+		opl.Adminid = oplogs[1]
+		opl.DtTime = oplogs[2]
+		opl.Obj1 = oplogs[3]
+		opl.Obj2 = oplogs[4]
+		opl.Obj3 = oplogs[5]
+		opl.Obj4 = oplogs[6]
+
+		emp_id := Device_Pin(d_id, opl.Obj1)
+
+		if opl.Opcode == "10" {
+			if emp_id != "" {
+				DeleteAllFP(emp_id)
+			}
+
+		}
+		if opl.Opcode == "11" {
+			Update_pwd(emp_id, "")
+		}
+
+	}
+	fmt.Println(companyid, d_id)
+
+	return true
+}
+
+func Find_cmd(id string) []Cmd {
+	var Cmds []Cmd
+	rows, err := db.Query("select id, CmdContent from devicecmds where deviceID = ? AND commandTransferTime IS NULL AND cmdStatus = 1 LIMIT 5", id)
+	//	rows, err := db.Query("select attLogStamp as Stamp from device where serialnumber=?", sn)
+	if err != nil {
+		log.Print(err)
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var cmd_one Cmd
+		err := rows.Scan(&cmd_one.Id, &cmd_one.Cmdbody)
+		Cmds = append(Cmds, cmd_one)
+		if err != nil {
+			log.Print(err)
+		}
+	}
+
+	return Cmds
+}
+
+func Update_Cmdstatus(sn, cmdid, rvalue, cmd string) {
+	fmt.Println("Update CmdStatus")
+	d_id := Dev_id(sn)
+	if d_id != "" {
+		var cmdstatus int
+		if rvalue == "0" {
+			cmdstatus = 0
+		} else {
+			cmdstatus = -1
+		}
+		fmt.Println(cmdstatus)
+
+		stmt, err := db.Prepare("update devicecmds set commandOverTime=NOW(), cmdStatus=?, Rvalue=?, returnCMD=? where id=?")
+		if err != nil {
+			log.Print(err)
+		}
+		res, err := stmt.Exec(cmdstatus, rvalue, cmd, cmdid)
+		if err != nil {
+			log.Print(err)
+			log.Print(res)
+			fmt.Println("!Not Cmd ID =", cmdid, "baj")
+		}
+		fmt.Println("Cmd ID =", cmdid, "bajar")
+
+	}
+
+}

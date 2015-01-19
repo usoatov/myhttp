@@ -8,7 +8,7 @@ import (
 )
 
 func main() {
-	var usr, pasw, datb string = "root", "", "biotrackonline"
+	var usr, pasw, datb string = "root", "123", "biotrackonline"
 	con, err := sql.Open("mysql", usr+":"+pasw+"@/"+datb)
 	if err != nil {
 		fmt.Println("error")
@@ -29,27 +29,25 @@ func main() {
 	}
 	fmt.Println("Cid=", cid, "name=", name)
 
-
-
 	var names []string
 
 	rows, err := con.Query("select name FROM company WHERE pricePlanID=?", "7")
 
 	if err != nil {
-	fmt.Println(err)
-	return
+		fmt.Println(err)
+		return
 	}
 
 	for rows.Next() {
-	var nm string
-	if err := rows.Scan(&nm); err != nil {
-	fmt.Println(err)
-	return
-	}
-	names = append(names, nm)
+		var nm string
+		if err := rows.Scan(&nm); err != nil {
+			fmt.Println(err)
+			return
+		}
+		names = append(names, nm)
 	}
 
-	for i:=range(names) {
+	for i := range names {
 		fmt.Println(names[i])
-	}	
+	}
 }
