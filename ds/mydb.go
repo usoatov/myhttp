@@ -389,6 +389,50 @@ func Get_loc_devices(loc_id string, d_gr int) []string {
 	return devs
 }
 
+func Get_server_id(d_id string) string {
+	var s_id interface{}
+	var str string
+
+	err := db.QueryRow("select serverid from device where id = ?", d_id).Scan(&s_id)
+	if err != nil {
+		log.Print(err)
+		return str
+	}
+	switch v := s_id.(type) {
+	case string:
+		//log.Println("this is string")
+		str = v
+	default:
+		//log.Println("this is not string")
+		str = ""
+	}
+	return str
+}
+
+func Add_Gprs_command(cmnd, d_id, pin, fid, fp string) bool {
+	fmt.Println("ADD GPRS boshlandi")
+	var cmd_content string
+	if cmnd == "dataFp" {
+		cmd_content = "DATA FP PIN=" + pin + "\tFID=" + fid + "\tValid=1\tTMP=" + fp
+	}
+
+	cmd_status := 1
+
+	stmt, err := db.Prepare("INSERT INTO devicecmds (deviceID, CmdContent, CmdCommitTime, cmdStatus, pinCode, command) VALUES(?, ?, NOW(), ?, ?, ?)")
+	if err != nil {
+		log.Print(err)
+	}
+	res, err := stmt.Exec(d_id, cmd_content, cmd_status, pin, cmnd)
+	if err != nil {
+		log.Print(err)
+		log.Print(res)
+		return false
+	}
+	fmt.Println("Insert GPRS OK")
+	return true
+
+}
+
 func InsertOplogData(sn, line string) bool {
 	companyid := Comp_id(sn)
 	d_id := Dev_id(sn)
@@ -457,7 +501,14 @@ func InsertOplogData(sn, line string) bool {
 						fmt.Println("*- Devs **", devs)
 						for i := range devs {
 							devid := devs[i]
-							fmt.Println(devid)
+							sid := Get_server_id(devid)
+							if sid == "" {
+								Add_Gprs_command("dataFp", devs[i], pin, fid, tmp)
+								sid = "bush"
+							} else {
+								//Add_Server_command()
+							}
+							fmt.Println("Dev_id=", devid, "serv_id=", sid)
 
 						}
 
