@@ -328,6 +328,7 @@ func Add_FP_Base(emp_id, fid int, fp []byte, st, devgr int) bool {
 		log.Print(res)
 		return false
 	}*/
+	fmt.Println("Add FP Base boshlandi")
 
 	type Finger struct {
 		Id            int    `db:"ID"`
@@ -342,7 +343,7 @@ func Add_FP_Base(emp_id, fid int, fp []byte, st, devgr int) bool {
 	dbmap := &gorp.DbMap{Db: db, Dialect: gorp.MySQLDialect{"InnoDB", "UTF8"}}
 	//table := dbmap.AddTable(Finger{})
 	dbmap.AddTableWithName(Finger{}, "fingerprint").SetKeys(true, "ID")
-	ff := Finger{Employeeid: 7424,
+	ff := Finger{Employeeid: emp_id,
 		Finger:        fid,
 		Fingerprint:   fp,
 		State:         st,
@@ -351,6 +352,7 @@ func Add_FP_Base(emp_id, fid int, fp []byte, st, devgr int) bool {
 	if err != nil {
 		return false
 	}
+	fmt.Println("Add FP Base tugadi")
 
 	return true
 
@@ -390,7 +392,7 @@ func Get_loc_devices(loc_id string, d_gr int) []string {
 }
 
 func Get_server_id(d_id string) string {
-	var s_id interface{}
+	var s_id sql.NullString
 	var str string
 
 	err := db.QueryRow("select serverid from device where id = ?", d_id).Scan(&s_id)
@@ -398,14 +400,14 @@ func Get_server_id(d_id string) string {
 		log.Print(err)
 		return str
 	}
-	switch v := s_id.(type) {
-	case string:
-		//log.Println("this is string")
-		str = v
-	default:
-		//log.Println("this is not string")
+
+	if s_id.Valid {
+		str = s_id.String
+	} else {
 		str = ""
 	}
+
+	fmt.Println("str=", str)
 	return str
 }
 
@@ -431,6 +433,28 @@ func Add_Gprs_command(cmnd, d_id, pin, fid, fp string) bool {
 	fmt.Println("Insert GPRS OK")
 	return true
 
+}
+
+func Add_Server_command(sid, emp, sn, pin, fid, fpt string) bool {
+	fmt.Println("=== ADD Server COMM")
+	const LAN_COMMAND_ADD_FINGERPRINT_CODE = 5
+	const LAN_COMMAND_MODE_ADD_CODE = 0
+	code := "5"
+	mode := "0"
+	fmt.Println("sid=", sid, "const", LAN_COMMAND_ADD_FINGERPRINT_CODE)
+
+	stmt, err := db.Prepare("INSERT INTO command (code, mode, serverID, serialNumber, employeeID, pinCode, finger, fingerprint, status) VALUES(?, ?, ?, ?, ?, ?, ?, ?, 0)")
+	if err != nil {
+		log.Print(err)
+	}
+	res, err := stmt.Exec(code, mode, sid, sn, emp, pin, fid, fpt)
+	if err != nil {
+		log.Print(err)
+		log.Print(res)
+		return false
+	}
+
+	return true
 }
 
 func InsertOplogData(sn, line string) bool {
@@ -484,12 +508,13 @@ func InsertOplogData(sn, line string) bool {
 			// Anviz device
 			ext_name = "_FPDbfile.avz"
 		}
-		fname := "../../device_logs/fps/" + emp_id + ext_name
+		fname := "../../device_logs/fps/" + emp_id + "_" + fid + ext_name
 		logs.Wr_file(fname, fpt)
 
 		emp_id = Device_Pin(d_id, pin)
 
 		if emp_id != "" {
+			log.Println("|||+++++  EMP ID bush emas")
 			// FP ni bazaga saqlash
 			e, _ := strconv.Atoi(emp_id)
 			fi, _ := strconv.Atoi(fid)
@@ -506,7 +531,10 @@ func InsertOplogData(sn, line string) bool {
 								Add_Gprs_command("dataFp", devs[i], pin, fid, tmp)
 								sid = "bush"
 							} else {
-								//Add_Server_command()
+								sc := Add_Server_command(sid, emp_id, sn, pin, fid, fpt)
+								if sc {
+									fmt.Println("OK ADD Serv_COM")
+								}
 							}
 							fmt.Println("Dev_id=", devid, "serv_id=", sid)
 

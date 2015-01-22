@@ -1,11 +1,14 @@
 package logs
 
-import "os"
+import (
+	"fmt"
+	"os"
+)
 
 func Wr_file(fl, text string) bool {
-	f, err := os.OpenFile(fl, os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0600)
+	f, err := os.OpenFile(fl, os.O_WRONLY|os.O_CREATE, 0600)
 	if err != nil {
-		panic(err)
+		fmt.Println(err)
 		return false
 	}
 
@@ -13,7 +16,7 @@ func Wr_file(fl, text string) bool {
 
 	_, err = f.WriteString(text + "\t")
 	if err != nil {
-		panic(err)
+		fmt.Println(err)
 		return false
 	}
 	return true
