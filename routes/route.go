@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	mydb "github.com/usoatov/my_htt/ds"
+	logs "github.com/usoatov/my_htt/fl"
 	"github.com/zenazn/goji/web"
 )
 
@@ -43,7 +44,7 @@ func Cdata_get(c web.C, w http.ResponseWriter, r *http.Request) {
 	var op = r.URL.Query().Get("options")
 	lr := mydb.Lastrequesttime(sn)
 	if lr {
-		fmt.Println("Bajarildi")
+		fmt.Println("Lastreq Bajarildi")
 	}
 	//fmt.Fprintf(w, "Hello, %s, %s!", sn, op)
 	if op == "all" {
@@ -66,6 +67,34 @@ func Cdata_get(c web.C, w http.ResponseWriter, r *http.Request) {
 
 		fmt.Fprintf(w, resp)
 	}
+}
+
+func Fdata_post(c web.C, w http.ResponseWriter, r *http.Request) {
+	r.ParseForm()
+	//var aa = r.PostFormValue("aa")
+	//var aa = r.Form["aa"][0]
+	var sn = r.URL.Query().Get("SN")
+	var tbl = r.URL.Query().Get("table")
+	var photostamp = r.URL.Query().Get("PhotoStamp")
+
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	line := strings.SplitN(string(body), "\n", 4)
+	fmt.Println(sn, tbl, photostamp, "PH Line")
+	/*for i := range line {
+		fmt.Println("line[", i, "]=", line[i])
+	}*/
+	//l := len(line)
+	ph := strings.SplitN(line[3], "\u0000", 2)
+	for i := range ph {
+		fmt.Println("ph[", i, ph[i])
+	}
+	phb := []byte(ph[1])
+	logs.Wr_byte("photo.jpg", phb)
+
 }
 
 func Cdata_post(c web.C, w http.ResponseWriter, r *http.Request) {

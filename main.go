@@ -27,6 +27,8 @@ func main() {
 	goji.Get("/iclock/cdata", route.Cdata_get)
 	goji.Get("/iclock/getrequest", route.Getrequest)
 	goji.Post("/iclock/cdata", route.Cdata_post)
+	// photo ni olish
+	//goji.Post("/iclock/fdata", route.Fdata_post)
 	goji.Post("/iclock/devicecmd", route.Devicecmd_post)
 	flag.Set("bind", ":"+port)
 	goji.Use(PlainText)
