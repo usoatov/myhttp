@@ -8,6 +8,7 @@ import (
 	"os"
 	"time"
 
+	logs "github.com/usoatov/my_htt/fl"
 	"github.com/zenazn/goji/web"
 	"github.com/zenazn/goji/web/mutil"
 )
@@ -71,6 +72,7 @@ func printStart(reqID string, r *http.Request) {
 
 	log.Print(mystr)
 	log.SetOutput(os.Stdout)
+	logs.All_File(mystr)
 
 }
 

@@ -1,7 +1,6 @@
 package cfg
 
 import (
-	"fmt"
 	"log"
 
 	"github.com/alyu/configparser"
@@ -11,7 +10,7 @@ func Read_config() (string, string, string, string, string) {
 	var p, db, host, usr, pwd string
 	config, err := configparser.Read("conf.ini")
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
 
 	p = "1900"
@@ -31,7 +30,6 @@ func Read_config() (string, string, string, string, string) {
 		host = section2.ValueOf("host")
 		usr = section2.ValueOf("user")
 		pwd = section2.ValueOf("pwd")
-		fmt.Println("cfg ", p, db, host, usr, pwd)
 
 	}
 	return p, db, host, usr, pwd

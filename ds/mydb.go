@@ -40,7 +40,7 @@ var db *sql.DB
 
 func Connect(mdb, host, usr, pwd string) bool {
 	var err error
-	fmt.Println(mdb, host, usr, pwd)
+	//fmt.Println(mdb, host, usr, pwd)
 	s := fmt.Sprintf("%s:%s@tcp(%s:3306)/%s", usr, pwd, host, mdb)
 	db, err = sql.Open("mysql", s)
 	if err != nil {

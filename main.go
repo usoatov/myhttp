@@ -2,11 +2,11 @@ package main
 
 import (
 	"flag"
-	"fmt"
 	"net/http"
 
 	cfg "github.com/usoatov/my_htt/cfg"
 	mydb "github.com/usoatov/my_htt/ds"
+	"github.com/usoatov/my_htt/fl"
 	route "github.com/usoatov/my_htt/routes"
 	"github.com/zenazn/goji"
 )
@@ -21,7 +21,7 @@ func main() {
 
 	dbcon := mydb.Connect(db, host, usr, pwd)
 	if dbcon {
-		fmt.Println("connect")
+		logs.All("connected to db")
 	}
 
 	goji.Get("/iclock/cdata", route.Cdata_get)
