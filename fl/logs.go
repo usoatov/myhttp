@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"time"
 )
 
 func Wr_file(fl, text string) bool {
@@ -43,7 +44,10 @@ func Wr_byte(fl string, bb []byte) bool {
 }
 
 func All(msg string) {
-	file, err := os.OpenFile("logs/log.txt", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+	t := time.Now()
+	s := fmt.Sprintf("%04d-%02d-%02d", t.Year(), t.Month(), t.Day())
+	s = "logs/all/" + s + ".log"
+	file, err := os.OpenFile(s, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
 	if err != nil {
 		log.Println("Failed to open log file", file, ":", err)
 	}
