@@ -1,78 +1,25 @@
-2015/01/23 17:22:16.700108 connected to db
-2015/01/23 17:22:16.700886 ================  Starting server on [::]:1999  ================
-2015/01/23 17:22:19.738613 [u-soatov/yhDk5sxlQI-000001] Started GET /iclock/cdata?SN=2784613130032&options=all&pushver=2.31&language=82 from 192.168.0.201:50929
-2015/01/23 17:22:20.018532 [u-soatov/yhDk5sxlQI-000002] Started GET /iclock/cdata?SN=2784613130032&options=all&pushver=2.31&language=82 from 192.168.0.201:50930
-2015/01/23 17:42:16.336297 connected to db
-2015/01/23 17:42:16.337622 ================  Starting server on [::]:1999  ================
-2015/01/23 17:43:32.801382 [u-soatov/VdkNXljhXh-000001] Started POST /iclock/cdata?SN=2784613130032&table=OPERLOG&OpStamp=483986583 from 127.0.0.1:41594
-2015/01/23 17:45:03.346912 [u-soatov/VdkNXljhXh-000002] Started POST /iclock/cdata?SN=2784613130032&table=ATTLOG&Stamp=99999999 from 127.0.0.1:41594
-2015/01/24 10:54:55.158396 connected to db
-2015/01/24 10:54:55.167102 ================  Starting server on [::]:1999  ================
-2015/01/24 11:10:06.625190 connected to db
-2015/01/24 11:10:06.625452 ================  Starting server on [::]:1999  ================
-2015/01/24 11:10:08.784443 [u-soatov/Pr6TtXiGzP-000001] Started GET /iclock/cdata?SN=2784613130032&options=all&pushver=2.31&language=82 from 192.168.0.201:50513
-2015/01/24 11:13:39.405090 connected to db
-2015/01/24 11:13:39.405291 ================  Starting server on [::]:1999  ================
-2015/01/24 11:14:00.581868 connected to db
-2015/01/24 11:14:00.582667 ================  Starting server on [::]:1999  ================
-2015/01/24 11:15:53.798098 connected to db
-2015/01/24 11:15:53.798374 ================  Starting server on [::]:1999  ================
-2015/01/24 11:16:15.862328 connected to db
-2015/01/24 11:16:15.862636 ================  Starting server on [::]:1999  ================
-2015/01/24 11:16:16.214951 [u-soatov/3AkQSP89pR-000001] Started GET /iclock/cdata?SN=2784613130032&options=all&pushver=2.31&language=82 from 192.168.0.201:51821
-2015/01/24 11:16:38.151388 connected to db
-2015/01/24 11:16:38.151878 ================  Starting server on [::]:1999  ================
-2015/01/24 11:18:57.969237 connected to db
-2015/01/24 11:18:57.970073 ================  Starting server on [::]:1999  ================
-2015/01/24 11:18:58.654883 [u-soatov/BRUXdd9D2K-000001] Started GET /iclock/cdata?SN=2784613130032&options=all&pushver=2.31&language=82 from 192.168.0.201:44627
-2015/01/24 11:19:16.667861 connected to db
-2015/01/24 11:19:16.668084 ================  Starting server on [::]:1999  ================
-2015/01/24 11:21:05.583949 connected to db
-2015/01/24 11:21:05.584266 ================  Starting server on [::]:1999  ================
-2015/01/24 11:23:56.797525 connected to db
-2015/01/24 11:23:56.797787 ================  Starting server on [::]:1999  ================
-2015/01/24 11:23:57.709443 [u-soatov/MuV8o9S3D6-000001] Started GET /iclock/cdata?SN=2784613130032&options=all&pushver=2.31&language=82 from 192.168.0.201:35592
-2015/01/24 11:24:10.177896 connected to db
-2015/01/24 11:24:10.178119 ================  Starting server on [::]:1999  ================
-2015/01/24 11:25:08.791658 connected to db
-2015/01/24 11:25:08.791858 ================  Starting server on [::]:1999  ================
-2015/01/24 11:25:15.480619 connected to db
-2015/01/24 11:25:15.481113 ================  Starting server on [::]:1999  ================
-2015/01/24 11:25:15.534697 [u-soatov/Q41TNWBzRM-000001] Started GET /iclock/cdata?SN=2784613130032&options=all&pushver=2.31&language=82 from 192.168.0.201:35620
-2015/01/24 11:25:16.751009 [u-soatov/Q41TNWBzRM-000002] Started GET /iclock/getrequest?SN=2784613130032 from 192.168.0.201:35621
-2015/01/24 11:25:16.984459 [u-soatov/Q41TNWBzRM-000003] Started POST /iclock/cdata?SN=2784613130032&table=OPERLOG&OpStamp=483969377 from 192.168.0.201:35622
-2015/01/24 11:32:36.751460 connected to db
-2015/01/24 11:32:36.751652 ================  Starting server on [::]:1999  ================
-2015/01/24 11:32:36.940549 [u-soatov/g8JqFyXCas-000001] Started GET /iclock/cdata?SN=2784613130032&options=all&pushver=2.31&language=82 from 192.168.0.201:43379
-2015/01/24 11:33:30.603416 connected to db
-2015/01/24 11:33:30.603833 ================  Starting server on [::]:1999  ================
-2015/01/24 11:33:32.615798 [u-soatov/RSYsmQ1YKm-000001] Started GET /iclock/cdata?SN=2784613130032&options=all&pushver=2.31&language=82 from 192.168.0.201:36056
-2015/01/24 11:33:33.820919 [u-soatov/RSYsmQ1YKm-000002] Started GET /iclock/getrequest?SN=2784613130032 from 192.168.0.201:36057
-2015/01/24 11:33:57.392694 connected to db
-2015/01/24 11:33:57.392914 ================  Starting server on [::]:1999  ================
-2015/01/24 11:46:30.742971 connected to db
-2015/01/24 11:46:30.743196 ================  Starting server on [::]:1999  ================
-2015/01/24 11:46:49.645216 connected to db
-2015/01/24 11:46:49.645479 ================  Starting server on [::]:1999  ================
-2015/01/24 11:46:50.632073 [u-soatov/mSiyDYpZkw-000001] Started GET /iclock/cdata?SN=2784613130032&options=all&pushver=2.31&language=82 from 192.168.0.201:53816
-2015/01/24 11:47:05.549488 connected to db
-2015/01/24 11:47:05.549843 ================  Starting server on [::]:1999  ================
-2015/02/12 11:51:09.087780 connected to db
-2015/02/12 11:51:09.088020 ================  Starting server on [::]:1999  ================
-2015/12/28 11:51:19.639283 connected to db
-2015/12/28 11:51:19.640788 ================  Starting server on [::]:1999  ================
-2015/12/28 11:51:20.166223 [u-soatov/2RL76gQsZm-000001] Started GET /iclock/cdata?SN=2784613130032&options=all&pushver=2.31&language=82 from 192.168.0.201:59702
-2015/01/24 11:52:00.605680 connected to db
-2015/01/24 11:52:00.606030 ================  Starting server on [::]:1999  ================
-2015/01/24 11:55:25.808264 [u-soatov/IH2jILHxqI-000001] Started GET /iclock/cdata?SN=2784613130032&options=all&pushver=2.31&language=82 from 192.168.0.201:39422
-2015/01/24 11:56:27.847298 [u-soatov/juYyp2DN1P-000001] Started GET /iclock/cdata?SN=2784613130032&options=all&pushver=2.31&language=82 from 192.168.0.201:39445
-2015/01/24 11:56:29.047880 [u-soatov/juYyp2DN1P-000002] Started GET /iclock/getrequest?SN=2784613130032 from 192.168.0.201:39446
-2015/01/24 12:01:26.278822 [u-soatov/2AEfxAy4T6-000001] Started GET /iclock/cdata?SN=2784613130032&options=all&pushver=2.31&language=82 from 192.168.0.201:60573
-2015/01/24 12:01:27.491839 [u-soatov/2AEfxAy4T6-000002] Started GET /iclock/getrequest?SN=2784613130032 from 192.168.0.201:60574
-2015/01/24 12:01:28.199012 [u-soatov/2AEfxAy4T6-000003] Started POST /iclock/cdata?SN=2784613130032&table=OPERLOG&OpStamp=483977574 from 192.168.0.201:60575
-2015/01/24 12:15:21.347955 [u-soatov/pacehWIJj4-000001] Started GET /iclock/cdata?SN=2784613130032&options=all&pushver=2.31&language=82 from 192.168.0.201:56197
-2015/01/24 12:15:22.788310 [u-soatov/pacehWIJj4-000002] Started GET /iclock/getrequest?SN=2784613130032 from 192.168.0.201:56198
-2015/01/24 12:15:27.103231 [u-soatov/pacehWIJj4-000003] Started POST /iclock/cdata?SN=2784613130032&table=OPERLOG&OpStamp=483992905 from 192.168.0.201:56199
-2015/01/24 12:15:27.341078 [u-soatov/pacehWIJj4-000004] Started POST /iclock/cdata?SN=2784613130032&table=OPERLOG&OpStamp=484005099 from 192.168.0.201:56200
-2015/01/24 12:15:28.104186 [u-soatov/pacehWIJj4-000005] Started POST /iclock/cdata?SN=2784613130032&table=OPERLOG&OpStamp=484080730 from 192.168.0.201:56201
-2015/01/24 12:15:30.111150 [u-soatov/pacehWIJj4-000006] Started POST /iclock/cdata?SN=2784613130032&table=ATTLOG&Stamp=484142391 from 192.168.0.201:56202
+2015/01/24 15:14:19.039528 [u-soatov/symyUHiEve-000001] Started GET /iclock/cdata?SN=2784613130032&options=all&pushver=2.31&language=82 from 192.168.0.201:55727
+2015/01/24 15:14:19.039611 [u-soatov/symyUHiEve-000001] Started GET /iclock/cdata?SN=2784613130032&options=all&pushver=2.31&language=82 from 192.168.0.201:55727
+2015/01/24 15:14:20.338726 [u-soatov/symyUHiEve-000002] Started GET /iclock/getrequest?SN=2784613130032 from 192.168.0.201:55728
+2015/01/24 15:14:20.338759 [u-soatov/symyUHiEve-000002] Started GET /iclock/getrequest?SN=2784613130032 from 192.168.0.201:55728
+2015/01/24 15:14:25.001237 [u-soatov/symyUHiEve-000003] Started POST /iclock/cdata?SN=2784613130032&table=OPERLOG&OpStamp=483992905 from 192.168.0.201:55729
+2015/01/24 15:14:25.001290 [u-soatov/symyUHiEve-000003] Started POST /iclock/cdata?SN=2784613130032&table=OPERLOG&OpStamp=483992905 from 192.168.0.201:55729
+2015/01/24 15:14:25.189623 [u-soatov/symyUHiEve-000004] Started POST /iclock/cdata?SN=2784613130032&table=OPERLOG&OpStamp=484005099 from 192.168.0.201:55730
+2015/01/24 15:14:25.189682 [u-soatov/symyUHiEve-000004] Started POST /iclock/cdata?SN=2784613130032&table=OPERLOG&OpStamp=484005099 from 192.168.0.201:55730
+2015/01/24 15:14:26.042562 [u-soatov/symyUHiEve-000005] Started POST /iclock/cdata?SN=2784613130032&table=OPERLOG&OpStamp=484145325 from 192.168.0.201:55731
+2015/01/24 15:14:26.042636 [u-soatov/symyUHiEve-000005] Started POST /iclock/cdata?SN=2784613130032&table=OPERLOG&OpStamp=484145325 from 192.168.0.201:55731
+2015/01/24 15:14:28.054103 [u-soatov/symyUHiEve-000006] Started POST /iclock/cdata?SN=2784613130032&table=ATTLOG&Stamp=484142391 from 192.168.0.201:55732
+2015/01/24 15:14:28.054164 [u-soatov/symyUHiEve-000006] Started POST /iclock/cdata?SN=2784613130032&table=ATTLOG&Stamp=484142391 from 192.168.0.201:55732
+2015/01/24 15:14:29.060475 [u-soatov/symyUHiEve-000007] Started POST /iclock/fdata?SN=2784613130032&table=ATTPHOTO&PhotoStamp=483970806 from 192.168.0.201:55733
+2015/01/24 15:14:29.060622 [u-soatov/symyUHiEve-000007] Started POST /iclock/fdata?SN=2784613130032&table=ATTPHOTO&PhotoStamp=483970806 from 192.168.0.201:55733
+2015/01/24 15:14:32.126801 [u-soatov/symyUHiEve-000008] Started GET /iclock/getrequest?SN=2784613130032 from 192.168.0.201:55736
+2015/01/24 15:14:32.126841 [u-soatov/symyUHiEve-000008] Started GET /iclock/getrequest?SN=2784613130032 from 192.168.0.201:55736
+2015/01/24 15:17:42.378123 [u-soatov/5ENT5PbL4y-000001] Started GET /iclock/cdata?SN=2784613130032&options=all&pushver=2.31&language=82 from 192.168.0.201:55781
+2015/01/24 15:17:42.378227 [u-soatov/5ENT5PbL4y-000001] Started GET /iclock/cdata?SN=2784613130032&options=all&pushver=2.31&language=82 from 192.168.0.201:55781
+2015/01/24 15:17:43.667291 [u-soatov/5ENT5PbL4y-000002] Started GET /iclock/getrequest?SN=2784613130032 from 192.168.0.201:55782
+2015/01/24 15:17:43.667349 [u-soatov/5ENT5PbL4y-000002] Started GET /iclock/getrequest?SN=2784613130032 from 192.168.0.201:55782
+2015/01/24 15:23:54.329278 [u-soatov/qjYmrW5wNs-000001] Started GET /iclock/cdata?SN=2784613130032&options=all&pushver=2.31&language=82 from 192.168.0.201:38276
+2015/01/24 15:23:55.620638 [u-soatov/qjYmrW5wNs-000002] Started GET /iclock/getrequest?SN=2784613130032 from 192.168.0.201:38277
+2015/01/24 15:23:59.980435 [u-soatov/qjYmrW5wNs-000003] Started POST /iclock/cdata?SN=2784613130032&table=OPERLOG&OpStamp=484005024 from 192.168.0.201:38278
+2015/01/24 15:24:00.180938 [u-soatov/qjYmrW5wNs-000004] Started POST /iclock/cdata?SN=2784613130032&table=OPERLOG&OpStamp=484005129 from 192.168.0.201:38279
+2015/01/24 15:24:00.973859 [u-soatov/qjYmrW5wNs-000005] Started POST /iclock/cdata?SN=2784613130032&table=OPERLOG&OpStamp=484145325 from 192.168.0.201:38280

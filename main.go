@@ -2,13 +2,18 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"net/http"
+	"time"
 
 	cfg "github.com/usoatov/my_htt/cfg"
 	mydb "github.com/usoatov/my_htt/ds"
 	"github.com/usoatov/my_htt/fl"
 	route "github.com/usoatov/my_htt/routes"
 	"github.com/zenazn/goji"
+	"github.com/zenazn/goji/web"
+	"github.com/zenazn/goji/web/middleware"
+	"github.com/zenazn/goji/web/mutil"
 )
 
 var (
@@ -21,7 +26,7 @@ func main() {
 
 	dbcon := mydb.Connect(db, host, usr, pwd)
 	if dbcon {
-		logs.All("connected to db")
+		logs.All("", "all", "connected to db")
 	}
 
 	goji.Get("/iclock/cdata", route.Cdata_get)
@@ -32,6 +37,7 @@ func main() {
 	goji.Post("/iclock/devicecmd", route.Devicecmd_post)
 	flag.Set("bind", ":"+port)
 	goji.Use(PlainText)
+	goji.Use(MyLogger)
 	goji.Serve()
 
 }
@@ -56,4 +62,46 @@ func PlainText(h http.Handler) http.Handler {
 		h.ServeHTTP(w, r)
 	}
 	return http.HandlerFunc(fn)
+}
+
+func MyLogger(c *web.C, h http.Handler) http.Handler {
+	fn := func(w http.ResponseWriter, r *http.Request) {
+		reqID := middleware.GetReqID(*c)
+
+		var sn = r.URL.Query().Get("SN")
+		printStart(sn, reqID, r)
+
+		lw := mutil.WrapWriter(w)
+
+		t1 := time.Now()
+		h.ServeHTTP(lw, r)
+
+		if lw.Status() == 0 {
+			lw.WriteHeader(http.StatusOK)
+		}
+		t2 := time.Now()
+
+		printEnd(sn, reqID, lw, t2.Sub(t1))
+	}
+
+	return http.HandlerFunc(fn)
+}
+
+func printStart(sn, reqID string, r *http.Request) {
+
+	mystr := "[" + reqID + "] Started " + r.Method + " " + r.URL.String() + " from " + r.RemoteAddr
+
+	logs.All_File(sn, "all", mystr)
+
+}
+
+func printEnd(sn, reqID string, w mutil.WriterProxy, dt time.Duration) {
+	var ss string
+
+	status := w.Status()
+	ss = ss + "Returning "
+	ss = ss + fmt.Sprintf("%03d in %s", status, dt)
+
+	logs.All_File(sn, "all", ss)
+
 }

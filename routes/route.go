@@ -13,19 +13,18 @@ import (
 
 func Getrequest(c web.C, w http.ResponseWriter, r *http.Request) {
 	sn := r.URL.Query().Get("SN")
-	info := r.URL.Query().Get("INFO")
+	//info := r.URL.Query().Get("INFO")
 	d_id := mydb.Dev_id(sn)
-	fmt.Println("Dev_id=", d_id, "Info", info)
 	lr := mydb.Lastrequesttime(sn)
 	if lr {
-		fmt.Println("Lastrequest bajarildi")
+		logs.All_File(sn, "all", "Lastrequest")
 	}
 	Cmds := mydb.Find_cmd(d_id)
 	eco := ""
 	for i := range Cmds {
 		tr := mydb.Transfertime(Cmds[i].Id)
 		if tr {
-			fmt.Println("Trans bajarildi")
+			logs.All_File(sn, "all", "Command ID="+Cmds[i].Id+" transfered")
 		}
 		eco += "C:" + Cmds[i].Id + ":" + Cmds[i].Cmdbody + "\n"
 
@@ -34,9 +33,10 @@ func Getrequest(c web.C, w http.ResponseWriter, r *http.Request) {
 	}
 	if eco == "" {
 		eco = "OK"
-		fmt.Println("Bosh")
+		logs.All(sn, "all", "No Commands")
 	}
 	fmt.Fprintf(w, eco)
+	logs.All_File(sn, "coms", eco)
 }
 
 func Cdata_get(c web.C, w http.ResponseWriter, r *http.Request) {
@@ -44,9 +44,9 @@ func Cdata_get(c web.C, w http.ResponseWriter, r *http.Request) {
 	var op = r.URL.Query().Get("options")
 	lr := mydb.Lastrequesttime(sn)
 	if lr {
-		fmt.Println("Lastreq Bajarildi")
+		logs.All(sn, "all", "Lastrequest")
 	}
-	//fmt.Fprintf(w, "Hello, %s, %s!", sn, op)
+
 	if op == "all" {
 		// mysql connect
 		opt := mydb.Options(sn)
@@ -66,6 +66,7 @@ func Cdata_get(c web.C, w http.ResponseWriter, r *http.Request) {
 		resp += fmt.Sprintf("Encrypt=%s\n", opt.Encrypt)
 
 		fmt.Fprintf(w, resp)
+		logs.All_File(sn, "all", resp)
 	}
 }
 
@@ -121,12 +122,15 @@ func Cdata_post(c web.C, w http.ResponseWriter, r *http.Request) {
 				if line[j][:5] != "OPLOG" {
 					r := mydb.InsertTempinout(sn, line[j])
 					if r {
-						fmt.Println("Inserting ...")
+						logs.All(sn, "all", "Inserted inout "+line[j])
+					} else {
+						logs.All(sn, "all", "Error insering inout "+line[j])
+						logs.All(sn, "errors", "Error insering inout "+line[j])
 					}
 				} else {
 					r := mydb.InsertOplogData(sn, line[j])
 					if r {
-						fmt.Println("Ins OPLOG")
+						logs.All(sn, "all", "Inserted OPLOG"+line[j])
 					}
 				}
 			}
@@ -171,7 +175,7 @@ func Devicecmd_post(c web.C, w http.ResponseWriter, r *http.Request) {
 	line := strings.Split(string(body), "\n")
 	for j := range line {
 		if line[j] != "" {
-			fmt.Println("line=", j, line[j])
+			logs.All(sn, "all", "Receiving command status "+line[j])
 			p := strings.Split(line[j], "&")
 			var id, ret, cmd string
 			for i := range p {
@@ -187,7 +191,6 @@ func Devicecmd_post(c web.C, w http.ResponseWriter, r *http.Request) {
 				}
 
 			}
-			fmt.Println("id=", id, "ret=", ret, "cmd=", cmd)
 			mydb.Update_Cmdstatus(sn, id, ret, cmd)
 		}
 	}

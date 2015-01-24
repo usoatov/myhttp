@@ -105,8 +105,6 @@ func Options(sn string) Opts {
 			log.Print(err)
 		}
 	}
-	fmt.Println(opres.Stamp)
-	fmt.Println(opres.Opstamp)
 
 	return opres
 }
@@ -145,7 +143,9 @@ func InsertTempinout(sn, line string) bool {
 	dt := ls[1]
 	eventcode := ls[2]
 	verify := ls[3]
-	fmt.Println("pin=", pin, "dt=", dt, eventcode, verify)
+	s := fmt.Sprintf("%s\t%s\t%s\t%s\n", pin, dt, eventcode, verify)
+	logs.Inout(sn, s)
+	//fmt.Println("pin=", pin, "dt=", dt, eventcode, verify)
 
 	stmt, err := db.Prepare("INSERT INTO `temp_inout` (deviceSN, pin, time, status, verify) VALUES(?, ?, ?, ?, ?)")
 	if err != nil {
@@ -621,7 +621,6 @@ func Find_cmd(id string) []Cmd {
 }
 
 func Update_Cmdstatus(sn, cmdid, rvalue, cmd string) {
-	fmt.Println("Update CmdStatus")
 	d_id := Dev_id(sn)
 	if d_id != "" {
 		var cmdstatus int
@@ -630,7 +629,7 @@ func Update_Cmdstatus(sn, cmdid, rvalue, cmd string) {
 		} else {
 			cmdstatus = -1
 		}
-		fmt.Println(cmdstatus)
+		//fmt.Println(cmdstatus)
 
 		stmt, err := db.Prepare("update devicecmds set commandOverTime=NOW(), cmdStatus=?, Rvalue=?, returnCMD=? where id=?")
 		if err != nil {
@@ -640,9 +639,9 @@ func Update_Cmdstatus(sn, cmdid, rvalue, cmd string) {
 		if err != nil {
 			log.Print(err)
 			log.Print(res)
-			fmt.Println("!Not Cmd ID =", cmdid, "baj")
+			logs.All(sn, "all", "Error updating status Command ID="+cmdid)
 		}
-		fmt.Println("Cmd ID =", cmdid, "bajar")
+		logs.All(sn, "all", "Command ID="+cmdid+" status updated")
 
 	}
 
