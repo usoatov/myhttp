@@ -180,19 +180,22 @@ func Device_Pin(d_id, pincode string) string {
 
 }
 
-func DeleteAllFP(emp_id string) {
+func DeleteAllFP(emp_id string) bool {
 	stmt, err := db.Prepare("delete from fingerprint where employeeID=?")
 	if err != nil {
 		log.Print(err)
+		return false
 	}
 	_, err = stmt.Exec(emp_id)
 	if err != nil {
 		log.Print(err)
+		return false
 	}
+	return true
 
 }
 
-func Update_pwd(emp_id, pwd string) {
+func Update_pwd(emp_id, pwd string) bool {
 
 	var s sql.NullString
 
@@ -207,11 +210,10 @@ func Update_pwd(emp_id, pwd string) {
 
 	_, err = stmt.Exec(s, emp_id)
 	if err != nil {
-		log.Print(err)
-	} else {
-		fmt.Println("Password " + pwd + "ga uzgardi")
+		//log.Print(err)
+		return false
 	}
-
+	return true
 }
 
 func PinFromCompany(cmp_id, pin string) string {
@@ -250,7 +252,6 @@ func Device_Group(d_id string) int {
 }
 
 func Isactive(emp_id string) bool {
-	fmt.Println("Isactive boshlandi")
 	var id string
 	rows, err := db.Query("select id from employee where ID=? and state='active'", emp_id)
 	if err != nil {
@@ -264,17 +265,16 @@ func Isactive(emp_id string) bool {
 		}
 	}
 	if id == "" {
-		fmt.Println("Isactive tugadi")
+		logs.All("", "all", "Employee ID="+emp_id+" is not Active")
 		return false
 	} else {
-		fmt.Println("Isactive tugadi")
+		logs.All("", "all", "Employee ID="+emp_id+" is Active")
 		return true
 	}
 
 }
 
 func Isfinger(emp_id string) bool {
-	fmt.Println("Is finger bosh")
 	var isf, pid string
 	//rows, err := db.Query("select isFingerprint from policy where ID in (select policyID from employee where ID=?)", emp_id)
 	rows, err := db.Query("select policyid from employee where id=?", emp_id)
@@ -288,7 +288,6 @@ func Isfinger(emp_id string) bool {
 			log.Print(err)
 		}
 	}
-	fmt.Println("====  PolicyID = ", pid)
 
 	rows, err = db.Query("select isFingerprint from policy where ID=?", pid)
 	if err != nil {
@@ -303,10 +302,8 @@ func Isfinger(emp_id string) bool {
 	}
 
 	if isf == "1" {
-		fmt.Println("Is finger tug")
 		return true
 	} else {
-		fmt.Println("Is finger tug")
 		return false
 	}
 
@@ -328,7 +325,6 @@ func Add_FP_Base(emp_id, fid int, fp []byte, st, devgr int) bool {
 		log.Print(res)
 		return false
 	}*/
-	fmt.Println("Add FP Base boshlandi")
 
 	type Finger struct {
 		Id            int    `db:"ID"`
@@ -352,14 +348,12 @@ func Add_FP_Base(emp_id, fid int, fp []byte, st, devgr int) bool {
 	if err != nil {
 		return false
 	}
-	fmt.Println("Add FP Base tugadi")
 
 	return true
 
 }
 
 func Get_location(d_id string) string {
-	fmt.Println("Get loc boshlandi")
 	var loc_id string
 
 	err := db.QueryRow("select locationid from device where id = ?", d_id).Scan(&loc_id)
@@ -367,7 +361,6 @@ func Get_location(d_id string) string {
 		log.Print(err)
 		return ""
 	}
-	fmt.Println("Get loc tugadi")
 	return loc_id
 }
 
@@ -407,12 +400,10 @@ func Get_server_id(d_id string) string {
 		str = ""
 	}
 
-	fmt.Println("str=", str)
 	return str
 }
 
 func Add_Gprs_command(cmnd, d_id, pin, fid, fp string) bool {
-	fmt.Println("ADD GPRS boshlandi")
 	var cmd_content string
 	if cmnd == "dataFp" {
 		cmd_content = "DATA FP PIN=" + pin + "\tFID=" + fid + "\tValid=1\tTMP=" + fp
@@ -430,18 +421,15 @@ func Add_Gprs_command(cmnd, d_id, pin, fid, fp string) bool {
 		log.Print(res)
 		return false
 	}
-	fmt.Println("Insert GPRS OK")
 	return true
 
 }
 
 func Add_Server_command(sid, emp, sn, pin, fid, fpt string) bool {
-	fmt.Println("=== ADD Server COMM")
 	const LAN_COMMAND_ADD_FINGERPRINT_CODE = 5
 	const LAN_COMMAND_MODE_ADD_CODE = 0
 	code := "5"
 	mode := "0"
-	fmt.Println("sid=", sid, "const", LAN_COMMAND_ADD_FINGERPRINT_CODE)
 
 	stmt, err := db.Prepare("INSERT INTO command (code, mode, serverID, serialNumber, employeeID, pinCode, finger, fingerprint, status) VALUES(?, ?, ?, ?, ?, ?, ?, ?, 0)")
 	if err != nil {
@@ -458,20 +446,21 @@ func Add_Server_command(sid, emp, sn, pin, fid, fpt string) bool {
 }
 
 func InsertOplogData(sn, line string) bool {
+	res := false
 	companyid := Comp_id(sn)
 	d_id := Dev_id(sn)
 	delim := strings.Split(line, " ")
 	tip := delim[0]
 
-	for i := range delim {
+	/*for i := range delim {
 		fmt.Println("delim [", i, delim[i])
-	}
+	}*/
 
 	if tip == "FP" {
 		keyvalue := strings.Split(delim[1], "\t")
 		var pin, fid, tmp string
 		for i := range keyvalue {
-			fmt.Println("keyvalue[", i, "]=", keyvalue[i])
+			//fmt.Println("keyvalue[", i, "]=", keyvalue[i])
 			data := strings.Split(keyvalue[i], "=")
 			if data[0] == "PIN" {
 				pin = data[1]
@@ -514,36 +503,53 @@ func InsertOplogData(sn, line string) bool {
 		emp_id = Device_Pin(d_id, pin)
 
 		if emp_id != "" {
-			log.Println("|||+++++  EMP ID bush emas")
 			// FP ni bazaga saqlash
 			e, _ := strconv.Atoi(emp_id)
 			fi, _ := strconv.Atoi(fid)
 			if Add_FP_Base(e, fi, []byte(fpt), 1, dev_group) {
+				logs.All(sn, "all", "FP Added to base for employee="+emp_id+" FID="+fid)
+				res = true
 				if Isactive(emp_id) && Isfinger(emp_id) {
 					loc_id := Get_location(d_id)
 					if loc_id != "" {
 						devs := Get_loc_devices(loc_id, dev_group)
-						fmt.Println("*- Devs **", devs)
+						//fmt.Println("*- Devs **", devs)
 						for i := range devs {
 							devid := devs[i]
 							sid := Get_server_id(devid)
 							if sid == "" {
-								Add_Gprs_command("dataFp", devs[i], pin, fid, tmp)
-								sid = "bush"
+								if Add_Gprs_command("dataFp", devs[i], pin, fid, tmp) {
+									res = true
+									logs.All(sn, "all", "GPRS Command added for "+devs[i])
+								} else {
+									logs.All(sn, "all", "Error adding Command for "+devs[i])
+									logs.All_File(sn, "errors", "Error adding Command for "+devs[i])
+								}
 							} else {
 								sc := Add_Server_command(sid, emp_id, sn, pin, fid, fpt)
 								if sc {
-									fmt.Println("OK ADD Serv_COM")
+									logs.All(sn, "all", "Server command ID="+sid+" added successfully")
+								} else {
+									logs.All(sn, "all", "Error adding Server command ID="+sid)
+									logs.All_File(sn, "errors", "Error adding Server command ID="+sid)
 								}
 							}
-							fmt.Println("Dev_id=", devid, "serv_id=", sid)
 
 						}
 
+					} else {
+						logs.All(sn, "all", "Error location not found")
+						logs.All_File(sn, "errors", "Error location not found")
 					}
 
+				} else {
+					logs.All(sn, "all", "Error Employee "+emp_id+" is not active or is not finger")
+					logs.All_File(sn, "errors", "Error Employee "+emp_id+" is not active or is not finger")
 				}
 
+			} else {
+				logs.All(sn, "all", "Error Adding FP to base for employee="+emp_id+" FID="+fid)
+				logs.All_File(sn, "errors", "Error Adding FP to base for employee="+emp_id+" FID="+fid)
 			}
 
 		}
@@ -563,10 +569,12 @@ func InsertOplogData(sn, line string) bool {
 			}
 			emp_id := PinFromCompany(companyid, pin)
 			if passw != "" {
-				Update_pwd(emp_id, passw)
+				if Update_pwd(emp_id, passw) {
+					logs.All(sn, "all", "Password changed for PIN="+pin)
+				}
 
 			}
-			fmt.Println(passw, emp_id)
+
 		}
 
 	}
@@ -586,7 +594,13 @@ func InsertOplogData(sn, line string) bool {
 
 		if opl.Opcode == "10" {
 			if emp_id != "" {
-				DeleteAllFP(emp_id)
+				if DeleteAllFP(emp_id) {
+					logs.All(sn, "all", "All Fingerprints successfully deleted")
+				} else {
+					logs.All(sn, "all", "Error on deleting all Fingerprints")
+					logs.All_File(sn, "errors", "Error on deleting all Fingerprints")
+				}
+
 			}
 
 		}
@@ -595,9 +609,8 @@ func InsertOplogData(sn, line string) bool {
 		}
 
 	}
-	fmt.Println(companyid, d_id)
 
-	return true
+	return res
 }
 
 func Find_cmd(id string) []Cmd {

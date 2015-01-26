@@ -92,6 +92,7 @@ func printStart(sn, reqID string, r *http.Request) {
 	mystr := "[" + reqID + "] Started " + r.Method + " " + r.URL.String() + " from " + r.RemoteAddr
 
 	logs.All_File(sn, "all", mystr)
+	logs.All_File(sn, "reqs", mystr)
 
 }
 
@@ -103,5 +104,6 @@ func printEnd(sn, reqID string, w mutil.WriterProxy, dt time.Duration) {
 	ss = ss + fmt.Sprintf("%03d in %s", status, dt)
 
 	logs.All_File(sn, "all", ss)
+	logs.All_File(sn, "reqs", ss)
 
 }

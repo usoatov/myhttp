@@ -74,9 +74,9 @@ func Fdata_post(c web.C, w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 	//var aa = r.PostFormValue("aa")
 	//var aa = r.Form["aa"][0]
-	var sn = r.URL.Query().Get("SN")
+	/*var sn = r.URL.Query().Get("SN")
 	var tbl = r.URL.Query().Get("table")
-	var photostamp = r.URL.Query().Get("PhotoStamp")
+	var photostamp = r.URL.Query().Get("PhotoStamp")*/
 
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
@@ -84,15 +84,12 @@ func Fdata_post(c web.C, w http.ResponseWriter, r *http.Request) {
 	}
 
 	line := strings.SplitN(string(body), "\n", 4)
-	fmt.Println(sn, tbl, photostamp, "PH Line")
+	//fmt.Println(sn, tbl, photostamp, "PH Line")
 	/*for i := range line {
 		fmt.Println("line[", i, "]=", line[i])
 	}*/
 	//l := len(line)
 	ph := strings.SplitN(line[3], "\u0000", 2)
-	for i := range ph {
-		fmt.Println("ph[", i, ph[i])
-	}
 	phb := []byte(ph[1])
 	logs.Wr_byte("photo.jpg", phb)
 
@@ -119,6 +116,7 @@ func Cdata_post(c web.C, w http.ResponseWriter, r *http.Request) {
 		// Сатрларга булиш
 		for j := range line {
 			if line[j] != "" {
+				logs.All(sn, "all", "Processing line "+line[j])
 				if line[j][:5] != "OPLOG" {
 					r := mydb.InsertTempinout(sn, line[j])
 					if r {
@@ -139,19 +137,19 @@ func Cdata_post(c web.C, w http.ResponseWriter, r *http.Request) {
 	}
 
 	if tbl != "" && opstamp != "" {
-		fmt.Println("Opstamp=", opstamp)
 
 		body, err := ioutil.ReadAll(r.Body)
 		if err != nil {
-			fmt.Println(err)
+			logs.All(sn, "errors", "Error while trying receiving post Body!")
 		}
 		line := strings.Split(string(body), "\n")
 
 		for j := range line {
 			if line[j] != "" {
+				logs.All(sn, "all", "Processing line "+line[j])
 				r := mydb.InsertOplogData(sn, line[j])
 				if r {
-					fmt.Println("")
+					fmt.Println("Inserted")
 				}
 			}
 
