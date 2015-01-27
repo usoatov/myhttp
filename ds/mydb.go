@@ -446,6 +446,7 @@ func Add_Server_command(sid, emp, sn, pin, fid, fpt string) bool {
 }
 
 func InsertOplogData(sn, line string) bool {
+	logs.All_File(sn, "oplog", line)
 	res := false
 	companyid := Comp_id(sn)
 	d_id := Dev_id(sn)
