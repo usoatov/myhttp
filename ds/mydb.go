@@ -659,3 +659,15 @@ func Update_Cmdstatus(sn, cmdid, rvalue, cmd string) {
 	}
 
 }
+
+func Companyname(sn string) string {
+	var cmp_n string
+
+	err := db.QueryRow("select name from company where id in (select companyid from device where serialnumber=?)", sn).Scan(&cmp_n)
+	if err != nil {
+		log.Print(err)
+	}
+
+	return cmp_n
+
+}

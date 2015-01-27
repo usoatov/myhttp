@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"strings"
+	"time"
 
 	mydb "github.com/usoatov/my_htt/ds"
 	logs "github.com/usoatov/my_htt/fl"
@@ -74,9 +75,10 @@ func Fdata_post(c web.C, w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 	//var aa = r.PostFormValue("aa")
 	//var aa = r.Form["aa"][0]
-	/*var sn = r.URL.Query().Get("SN")
-	var tbl = r.URL.Query().Get("table")
-	var photostamp = r.URL.Query().Get("PhotoStamp")*/
+	var sn = r.URL.Query().Get("SN")
+	//var tbl = r.URL.Query().Get("table")
+	//var photostamp = r.URL.Query().Get("PhotoStamp")
+	//fmt.Println("====== PHOTO =======")
 
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
@@ -84,14 +86,26 @@ func Fdata_post(c web.C, w http.ResponseWriter, r *http.Request) {
 	}
 
 	line := strings.SplitN(string(body), "\n", 4)
-	//fmt.Println(sn, tbl, photostamp, "PH Line")
-	/*for i := range line {
+	/*fmt.Println(sn, tbl, photostamp, "PH Line")
+	for i := range line {
 		fmt.Println("line[", i, "]=", line[i])
-	}*/
-	//l := len(line)
+	}
+	l := len(line)*/
+
+	ls := strings.Split(line[0], "=")
+	fn := ls[1]
 	ph := strings.SplitN(line[3], "\u0000", 2)
 	phb := []byte(ph[1])
-	logs.Wr_byte("photo.jpg", phb)
+
+	dir := "../../Apache/home/images/"
+	t := time.Now()
+	yr := fmt.Sprintf("%04d", t.Year())
+	cmp_name := mydb.Companyname(sn)
+	dir = dir + yr + "/" + cmp_name + "/" + sn + "/"
+
+	logs.All(sn, "all", "Saving photo to file: "+dir+fn)
+	logs.Wr_byte(dir+fn, phb)
+	fmt.Fprintf(w, "OK")
 
 }
 
