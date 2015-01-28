@@ -63,7 +63,7 @@ func PlainText(h http.Handler) http.Handler {
 	}
 	return http.HandlerFunc(fn)
 }
-
+// Implementation of goji logger to process all request
 func MyLogger(c *web.C, h http.Handler) http.Handler {
 	fn := func(w http.ResponseWriter, r *http.Request) {
 		reqID := middleware.GetReqID(*c)
