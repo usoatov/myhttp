@@ -2,8 +2,14 @@ package route
 
 import (
 	"fmt"
+	"image"
+	"image/jpeg"
+	"image/png"
 	"io/ioutil"
+	"log"
 	"net/http"
+	"os"
+	"regexp"
 	"strings"
 	"time"
 
@@ -94,6 +100,7 @@ func Fdata_post(c web.C, w http.ResponseWriter, r *http.Request) {
 
 	ls := strings.Split(line[0], "=")
 	fn := ls[1]
+
 	ph := strings.SplitN(line[3], "\u0000", 2)
 	phb := []byte(ph[1])
 
@@ -104,8 +111,78 @@ func Fdata_post(c web.C, w http.ResponseWriter, r *http.Request) {
 	dir = dir + yr + "/" + cmp_name + "/" + sn + "/"
 
 	logs.All(sn, "all", "Saving photo to file: "+dir+fn)
-	logs.Wr_byte(dir+fn, phb)
+	//logs.Wr_byte(dir+fn, phb)
+	logs.Wr_byte("temp/tmp.jpg", phb)
+
+	const shrtFrm = "20060102150405-0700 MST"
+	dt := fn[:14]
+	dt = dt + "+0500 UZT"
+	t2, _ := time.Parse(shrtFrm, dt)
+	nt := t2.Local()
+	nx := nt.Unix()
+
+	var pin string
+	// ichida minus borligini tekshirish
+	mb, _ := regexp.MatchString("-", fn)
+	if mb {
+		p := strings.Split(fn, "-")
+		pn := strings.Split(p[1], ".")
+		pin = pn[0]
+
+	}
+	fn = fmt.Sprintf("%d", nx)
+	if pin != "" {
+		fn = pin + "_" + fn + ".png"
+	} else {
+		fn = fn + ".png"
+	}
+
+	dataofimagejpg := ImageRead("temp/tmp.jpg", "jpeg")
+	if dataofimagejpg != nil {
+		if Formatpng(dataofimagejpg, dir+fn) {
+			logs.All(sn, "all", "File "+dir+fn+" saved success.")
+		} else {
+			logs.All(sn, "errors", "Error saving file "+dir+fn)
+		}
+
+	} else {
+		logs.All(sn, "errors", "Error reading photo tmp.jpg")
+
+	}
+
 	fmt.Fprintf(w, "OK")
+
+}
+
+func ImageRead(ImageFile string, format string) (image image.Image) {
+	if format == "jpeg" {
+		file, err := os.Open(ImageFile)
+		if err != nil {
+			log.Println(err)
+		}
+		img, err := jpeg.Decode(file)
+		if err != nil {
+			log.Println(err)
+		}
+		file.Close()
+
+		return img
+	}
+	return nil
+}
+
+func Formatpng(img image.Image, name string) bool {
+	out, err := os.Create(name)
+	if err != nil {
+		fmt.Println(err)
+	}
+	err = png.Encode(out, img)
+	if err != nil {
+		fmt.Println(err)
+		return false
+	}
+
+	return true
 
 }
 
