@@ -24,14 +24,14 @@ func Getrequest(c web.C, w http.ResponseWriter, r *http.Request) {
 	d_id := mydb.Dev_id(sn)
 	lr := mydb.Lastrequesttime(sn)
 	if lr {
-		logs.All_File(sn, "all", "Lastrequest")
+		logs.All(sn, "all", "Lastrequest")
 	}
 	Cmds := mydb.Find_cmd(d_id)
 	eco := ""
 	for i := range Cmds {
 		tr := mydb.Transfertime(Cmds[i].Id)
 		if tr {
-			logs.All_File(sn, "all", "Command ID="+Cmds[i].Id+" transfered")
+			logs.All(sn, "all", "Command ID="+Cmds[i].Id+" transfered")
 		}
 		eco += "C:" + Cmds[i].Id + ":" + Cmds[i].Cmdbody + "\n"
 
@@ -43,7 +43,7 @@ func Getrequest(c web.C, w http.ResponseWriter, r *http.Request) {
 		logs.All(sn, "all", "No Commands")
 	}
 	fmt.Fprintf(w, eco)
-	logs.All_File(sn, "coms", eco)
+	logs.All(sn, "coms", eco)
 }
 
 func Cdata_get(c web.C, w http.ResponseWriter, r *http.Request) {
@@ -191,11 +191,11 @@ func Cdata_post(c web.C, w http.ResponseWriter, r *http.Request) {
 	//var aa = r.PostFormValue("aa")
 	//var aa = r.Form["aa"][0]
 	var sn = r.URL.Query().Get("SN")
-	var tbl = r.URL.Query().Get("table")
+	//var tbl = r.URL.Query().Get("table")
 	var stamp = r.URL.Query().Get("Stamp")
 	var opstamp = r.URL.Query().Get("OpStamp")
 
-	if tbl != "" && stamp != "" {
+	if stamp != "" {
 
 		body, err := ioutil.ReadAll(r.Body)
 		if err != nil {
@@ -214,7 +214,7 @@ func Cdata_post(c web.C, w http.ResponseWriter, r *http.Request) {
 						logs.All(sn, "all", "Inserted inout "+line[j])
 					} else {
 						logs.All(sn, "all", "Error insering inout "+line[j])
-						logs.All(sn, "errors", "Error insering inout "+line[j])
+						logs.All_File(sn, "errors", "Error insering inout "+line[j])
 					}
 				} else {
 					r := mydb.InsertOplogData(sn, line[j])
@@ -227,7 +227,7 @@ func Cdata_post(c web.C, w http.ResponseWriter, r *http.Request) {
 
 	}
 
-	if tbl != "" && opstamp != "" {
+	if opstamp != "" {
 
 		body, err := ioutil.ReadAll(r.Body)
 		if err != nil {

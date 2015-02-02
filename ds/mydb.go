@@ -498,7 +498,7 @@ func InsertOplogData(sn, line string) bool {
 			// Anviz device
 			ext_name = "_FPDbfile.avz"
 		}
-		fname := "../../device_logs/fps/" + emp_id + "_" + fid + ext_name
+		fname := "logs/fps/" + emp_id + "_" + fid + ext_name
 		logs.Wr_file(fname, fpt)
 
 		emp_id = Device_Pin(d_id, pin)
@@ -616,7 +616,7 @@ func InsertOplogData(sn, line string) bool {
 
 func Find_cmd(id string) []Cmd {
 	var Cmds []Cmd
-	rows, err := db.Query("select id, CmdContent from devicecmds where deviceID = ? AND commandTransferTime IS NULL AND cmdStatus = 1 LIMIT 5", id)
+	rows, err := db.Query("select id, CmdContent from devicecmds where deviceID = ? AND commandTransferTime IS NULL AND cmdStatus = 1 LIMIT 1", id)
 	//	rows, err := db.Query("select attLogStamp as Stamp from device where serialnumber=?", sn)
 	if err != nil {
 		log.Print(err)

@@ -58,11 +58,12 @@ func PlainText(h http.Handler) http.Handler {
 		ts := t.UTC().Format(layout)
 		fmt.Println(ts)
 		w.Header().Set("Date", ts)*/
-		w.Header().Set("Content-Type", "text/plain")
+		w.Header().Set("Content-Type", "text/plain; charset=utf-8")
 		h.ServeHTTP(w, r)
 	}
 	return http.HandlerFunc(fn)
 }
+
 // Implementation of goji logger to process all request
 func MyLogger(c *web.C, h http.Handler) http.Handler {
 	fn := func(w http.ResponseWriter, r *http.Request) {
@@ -91,7 +92,7 @@ func printStart(sn, reqID string, r *http.Request) {
 
 	mystr := "[" + reqID + "] Started " + r.Method + " " + r.URL.String() + " from " + r.RemoteAddr
 
-	logs.All_File(sn, "all", mystr)
+	logs.All(sn, "all", mystr)
 	logs.All_File(sn, "reqs", mystr)
 
 }
@@ -103,7 +104,7 @@ func printEnd(sn, reqID string, w mutil.WriterProxy, dt time.Duration) {
 	ss = ss + "Returning "
 	ss = ss + fmt.Sprintf("%03d in %s", status, dt)
 
-	logs.All_File(sn, "all", ss)
+	logs.All(sn, "all", ss)
 	logs.All_File(sn, "reqs", ss)
 
 }
