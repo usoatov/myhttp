@@ -10,7 +10,7 @@ import (
 	"strings"
 
 	"github.com/coopernurse/gorp"
-	logs "github.com/usoatov/my_htt/fl"
+	logs "github.com/usoatov/myhttp/fl"
 
 	_ "github.com/go-sql-driver/mysql"
 )
@@ -382,6 +382,51 @@ func Get_loc_devices(loc_id string, d_gr int) []string {
 	}
 
 	return devs
+}
+
+func Update_photostamp(sn, phs string) bool {
+	stmt, err := db.Prepare("update device set photoStamp=? where serialnumber=?")
+	if err != nil {
+		log.Print(err)
+	}
+	res, err := stmt.Exec(phs, sn)
+	if err != nil {
+		log.Print(err)
+		log.Print(res)
+		return false
+	}
+	return true
+
+}
+
+func Update_stamp(sn, sta string) bool {
+	stmt, err := db.Prepare("update device set attLogStamp=? where serialnumber=?")
+	if err != nil {
+		log.Print(err)
+	}
+	res, err := stmt.Exec(sta, sn)
+	if err != nil {
+		log.Print(err)
+		log.Print(res)
+		return false
+	}
+	return true
+
+}
+
+func Update_opstamp(sn, op string) bool {
+	stmt, err := db.Prepare("update device set operLogStamp=? where serialnumber=?")
+	if err != nil {
+		log.Print(err)
+	}
+	res, err := stmt.Exec(op, sn)
+	if err != nil {
+		log.Print(err)
+		log.Print(res)
+		return false
+	}
+	return true
+
 }
 
 func Get_server_id(d_id string) string {

@@ -13,8 +13,8 @@ import (
 	"strings"
 	"time"
 
-	mydb "github.com/usoatov/my_htt/ds"
-	logs "github.com/usoatov/my_htt/fl"
+	mydb "github.com/usoatov/myhttp/ds"
+	logs "github.com/usoatov/myhttp/fl"
 	"github.com/zenazn/goji/web"
 )
 
@@ -83,7 +83,11 @@ func Fdata_post(c web.C, w http.ResponseWriter, r *http.Request) {
 	//var aa = r.Form["aa"][0]
 	var sn = r.URL.Query().Get("SN")
 	//var tbl = r.URL.Query().Get("table")
-	//var photostamp = r.URL.Query().Get("PhotoStamp")
+	var photostamp = r.URL.Query().Get("PhotoStamp")
+	if mydb.Update_photostamp(sn, photostamp) {
+		logs.All(sn, "all", "Photostamp changed to "+photostamp)
+
+	}
 	//fmt.Println("====== PHOTO =======")
 
 	body, err := ioutil.ReadAll(r.Body)
@@ -197,6 +201,11 @@ func Cdata_post(c web.C, w http.ResponseWriter, r *http.Request) {
 
 	if stamp != "" {
 
+		if mydb.Update_stamp(sn, stamp) {
+			logs.All(sn, "all", "AttlogStamp changed to "+stamp)
+
+		}
+
 		body, err := ioutil.ReadAll(r.Body)
 		if err != nil {
 			fmt.Println(err)
@@ -228,6 +237,10 @@ func Cdata_post(c web.C, w http.ResponseWriter, r *http.Request) {
 	}
 
 	if opstamp != "" {
+		if mydb.Update_opstamp(sn, opstamp) {
+			logs.All(sn, "all", "OpplogStamp changed to "+opstamp)
+
+		}
 
 		body, err := ioutil.ReadAll(r.Body)
 		if err != nil {
