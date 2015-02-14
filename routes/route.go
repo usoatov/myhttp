@@ -212,10 +212,12 @@ func Cdata_post(c web.C, w http.ResponseWriter, r *http.Request) {
 		}
 
 		line := strings.Split(string(body), "\n")
-
 		// Сатрларга булиш
 		for j := range line {
 			if line[j] != "" {
+				/*if !strings.Contains(line[j], "2015") {
+					continue
+				}*/
 				logs.All(sn, "all", "Processing line "+line[j])
 				if line[j][:5] != "OPLOG" {
 					r := mydb.InsertTempinout(sn, line[j])

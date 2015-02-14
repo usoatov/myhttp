@@ -8,6 +8,7 @@ import (
 	"log"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/coopernurse/gorp"
 	logs "github.com/usoatov/myhttp/fl"
@@ -145,6 +146,7 @@ func InsertTempinout(sn, line string) bool {
 	verify := ls[3]
 	s := fmt.Sprintf("%s\t%s\t%s\t%s\n", pin, dt, eventcode, verify)
 	logs.Inout(sn, s)
+	Update_stamp(sn, dt)
 	//fmt.Println("pin=", pin, "dt=", dt, eventcode, verify)
 
 	stmt, err := db.Prepare("INSERT INTO `temp_inout` (deviceSN, pin, time, status, verify) VALUES(?, ?, ?, ?, ?)")
@@ -400,11 +402,17 @@ func Update_photostamp(sn, phs string) bool {
 }
 
 func Update_stamp(sn, sta string) bool {
+	const shrtFrm = "2006-01-02 15:04:05-0700 MST"
+	dt := sta + "+0500 UZT"
+	t2, _ := time.Parse(shrtFrm, dt)
+	nt := t2.Local()
+	nx := nt.Unix()
+
 	stmt, err := db.Prepare("update device set attLogStamp=? where serialnumber=?")
 	if err != nil {
 		log.Print(err)
 	}
-	res, err := stmt.Exec(sta, sn)
+	res, err := stmt.Exec(nx, sn)
 	if err != nil {
 		log.Print(err)
 		log.Print(res)
