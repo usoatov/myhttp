@@ -65,6 +65,12 @@ func Cdata_get(c web.C, w http.ResponseWriter, r *http.Request) {
 			logs.All(sn, "all", "Lastrequest")
 		}
 
+		if mydb.Billing(sn) {
+			fmt.Println("Billing bor")
+		} else {
+			fmt.Println("Yuq billing")
+		}
+
 		if op == "all" {
 			// mysql connect
 			opt := mydb.Options(sn)
