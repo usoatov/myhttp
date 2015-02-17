@@ -79,8 +79,8 @@ func Billing(sn string) bool {
 	// time ni 3 kun orqaga qaytarish
 	d3 := n.Add(fq)
 	//s := fmt.Sprintf("%04d", t.Year())
-	s := fmt.Sprintf("%04d-%02d-%02d %02d:%02d:%02d", d3.Year(), d3.Month(), d3.Day(), d3.Hour(), d3.Minute(), d3.Second())
-	fmt.Println(s)
+	//s := fmt.Sprintf("%04d-%02d-%02d %02d:%02d:%02d", d3.Year(), d3.Month(), d3.Day(), d3.Hour(), d3.Minute(), d3.Second())
+	//fmt.Println(s)
 
 	var st int
 	rows, err := db.Query("select status from billing_status where companyID = ? and ? BETWEEN f_time AND l_time", cmp_id, d3)
