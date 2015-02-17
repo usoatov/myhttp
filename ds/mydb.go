@@ -169,6 +169,17 @@ func Transfertime(id string) bool {
 	return true
 }
 
+func GetLastreq(sn string) string {
+	var gl string
+
+	err := db.QueryRow("select lastRequestTime from device where serialNumber = ?", sn).Scan(&gl)
+	if err != nil {
+		log.Print(err)
+		return ""
+	}
+	return gl
+}
+
 func InsertTempinout(sn, line string) bool {
 	ls := strings.Split(line, "\t")
 	pin := ls[0]
@@ -180,6 +191,16 @@ func InsertTempinout(sn, line string) bool {
 	Update_stamp(sn, dt)
 	//fmt.Println("pin=", pin, "dt=", dt, eventcode, verify)
 
+	lastreq := GetLastreq(sn)
+	const layout = "2006-01-02 15:04:05"
+	tInout, _ := time.Parse(layout, dt)
+	tLastreq, _ := time.Parse(layout, lastreq)
+	dur := -3 * time.Minute
+	tLastreq = tLastreq.Add(dur)
+
+	if tLastreq.Unix() > tInout.Unix() {
+		return false
+	}
 	stmt, err := db.Prepare("INSERT INTO `temp_inout` (deviceSN, pin, time, status, verify) VALUES(?, ?, ?, ?, ?)")
 	if err != nil {
 		log.Print(err)

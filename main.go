@@ -29,17 +29,37 @@ func main() {
 		logs.All("", "all", "connected to db")
 	}
 
+	// set service listening port
+	flag.Set("bind", ":"+port)
+
+	// middlewares
+	goji.Use(PlainText)
+	goji.Use(MyLogger)
+	goji.Use(Controls)
+
+	// routes
 	goji.Get("/iclock/cdata", route.Cdata_get)
 	goji.Get("/iclock/getrequest", route.Getrequest)
 	goji.Post("/iclock/cdata", route.Cdata_post)
 	// photo ni olish
 	goji.Post("/iclock/fdata", route.Fdata_post)
 	goji.Post("/iclock/devicecmd", route.Devicecmd_post)
-	flag.Set("bind", ":"+port)
-	goji.Use(PlainText)
-	goji.Use(MyLogger)
+
 	goji.Serve()
 
+}
+
+func Controls(h http.Handler) http.Handler {
+	fn := func(w http.ResponseWriter, r *http.Request) {
+		var sn = r.URL.Query().Get("SN")
+		d_id := mydb.Dev_id(sn)
+		if !(mydb.Billing(sn) && d_id != "") {
+			return
+		}
+		h.ServeHTTP(w, r)
+
+	}
+	return http.HandlerFunc(fn)
 }
 
 // PlainText sets the content-type of responses to text/plain.
