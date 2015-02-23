@@ -75,29 +75,50 @@ func Dev_id(sn string) string {
 func Billing(sn string) bool {
 	cmp_id := Comp_id(sn)
 	n := time.Now()
-	fq := -72 * time.Hour
-	// time ni 3 kun orqaga qaytarish
-	d3 := n.Add(fq)
-	//s := fmt.Sprintf("%04d", t.Year())
-	//s := fmt.Sprintf("%04d-%02d-%02d %02d:%02d:%02d", d3.Year(), d3.Month(), d3.Day(), d3.Hour(), d3.Minute(), d3.Second())
-	//fmt.Println(s)
+	var st [4]int
+	var i int
+	for i = 0; i <= 3; i++ {
+		var d3 time.Time
+		var fq time.Duration
+		switch i {
+		case 0:
+			d3 = n
+		case 1:
+			fq = -24 * time.Hour
+			d3 = n.Add(fq)
+		case 2:
+			fq = -48 * time.Hour
+			d3 = n.Add(fq)
+		case 3:
+			fq = -72 * time.Hour
+			d3 = n.Add(fq)
 
-	var st int
-	rows, err := db.Query("select status from billing_status where companyID = ? and ? BETWEEN f_time AND l_time", cmp_id, d3)
+			// time ni 3 kun orqaga qaytarish
+		}
+		//s := fmt.Sprintf("%04d", t.Year())
+		//s := fmt.Sprintf("%04d-%02d-%02d %02d:%02d:%02d", d3.Year(), d3.Month(), d3.Day(), d3.Hour(), d3.Minute(), d3.Second())
+		//fmt.Println(s)
 
-	if err != nil {
-		log.Print(err)
-	}
-	defer rows.Close()
-	for rows.Next() {
-		err := rows.Scan(&st)
+		rows, err := db.Query("select status from billing_status where companyID = ? and ? BETWEEN f_time AND l_time", cmp_id, d3)
+
 		if err != nil {
-			log.Println("ERROR in Scan")
 			log.Print(err)
 		}
+		defer rows.Close()
+		for rows.Next() {
+			err := rows.Scan(&st[i])
+			if err != nil {
+				log.Println("ERROR in Scan")
+				log.Print(err)
+			}
+		}
 	}
-	if st == 1 {
-		return true
+
+	var j int
+	for j = 0; j <= 3; j++ {
+		if st[j] == 1 {
+			return true
+		}
 	}
 	return false
 
