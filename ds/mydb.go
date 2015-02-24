@@ -78,23 +78,9 @@ func Billing(sn string) bool {
 	var st [4]int
 	var i int
 	for i = 0; i <= 3; i++ {
-		var d3 time.Time
 		var fq time.Duration
-		switch i {
-		case 0:
-			d3 = n
-		case 1:
-			fq = -24 * time.Hour
-			d3 = n.Add(fq)
-		case 2:
-			fq = -48 * time.Hour
-			d3 = n.Add(fq)
-		case 3:
-			fq = -72 * time.Hour
-			d3 = n.Add(fq)
-
-			// time ni 3 kun orqaga qaytarish
-		}
+		fq = time.Duration(-24*i) * time.Hour
+		d3 := n.Add(fq)
 		//s := fmt.Sprintf("%04d", t.Year())
 		//s := fmt.Sprintf("%04d-%02d-%02d %02d:%02d:%02d", d3.Year(), d3.Month(), d3.Day(), d3.Hour(), d3.Minute(), d3.Second())
 		//fmt.Println(s)
