@@ -370,7 +370,7 @@ func Isfinger(emp_id string) bool {
 
 }
 
-func Add_FP_Base(emp_id, fid int, fp []byte, st, devgr int) bool {
+func Add_FP_Base(emp_id, fid int, fp []byte, st, devgr int) (bool, string) {
 	//fmt.Println("Add FP Base EMP=", emp_id, "FID=", fid, fp, st, devgr)
 	//sqlstr := "INSERT INTO fingerprint (employeeid, finger, fingerprint, state, devicegroupid) VALUES(" + emp_id + ", " + fid + ", '" + fp + "', " + st + ", " + devgr + ")"
 
@@ -407,10 +407,12 @@ func Add_FP_Base(emp_id, fid int, fp []byte, st, devgr int) bool {
 		Devicegroupid: devgr}
 	err := dbmap.Insert(&ff)
 	if err != nil {
-		return false
+		fmt.Println(err)
+		logs.All_File("", "errors", err.Error())
+		return false, err.Error()
 	}
 
-	return true
+	return true, ""
 
 }
 
@@ -592,7 +594,7 @@ func InsertOplogData(sn, line string) bool {
 
 		fp, err := base64.StdEncoding.DecodeString(tmp)
 		if err != nil {
-			fmt.Println("error:", err)
+			fmt.Println("error while decoding base64:", err)
 		}
 		//fmt.Println("--- base64  ---", fp)
 		fpt := strings.ToUpper(hex.EncodeToString(fp))
@@ -619,7 +621,8 @@ func InsertOplogData(sn, line string) bool {
 			// FP ni bazaga saqlash
 			e, _ := strconv.Atoi(emp_id)
 			fi, _ := strconv.Atoi(fid)
-			if Add_FP_Base(e, fi, []byte(fpt), 1, dev_group) {
+			adding, errm := Add_FP_Base(e, fi, []byte(fpt), 1, dev_group)
+			if adding {
 				logs.All(sn, "all", "FP Added to base for employee="+emp_id+" FID="+fid)
 				res = true
 				if Isactive(emp_id) && Isfinger(emp_id) {
@@ -661,8 +664,8 @@ func InsertOplogData(sn, line string) bool {
 				}
 
 			} else {
-				logs.All(sn, "all", "Error Adding FP to base for employee="+emp_id+" FID="+fid)
-				logs.All_File(sn, "errors", "Error Adding FP to base for employee="+emp_id+" FID="+fid)
+				logs.All(sn, "all", "Error Adding FP to base for employee="+emp_id+" FID="+fid+" "+errm)
+				logs.All_File(sn, "errors", "Error Adding FP to base for employee="+emp_id+" FID="+fid+" "+errm)
 			}
 
 		}
