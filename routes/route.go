@@ -49,7 +49,9 @@ func Getrequest(c web.C, w http.ResponseWriter, r *http.Request) {
 func Cdata_get(c web.C, w http.ResponseWriter, r *http.Request) {
 	var sn = r.URL.Query().Get("SN")
 	var op = r.URL.Query().Get("options")
+	fmt.Println("Cdtat get")
 	d_id := mydb.Dev_id(sn)
+	fmt.Println(d_id)
 
 	if !(op == "all") {
 		logs.All("", "all", "Device "+d_id+" not found")
@@ -79,6 +81,7 @@ func Cdata_get(c web.C, w http.ResponseWriter, r *http.Request) {
 	resp += fmt.Sprintf("Encrypt=%s\n", opt.Encrypt)
 
 	fmt.Fprintf(w, resp)
+	fmt.Println(resp)
 	logs.All_File(sn, "all", resp)
 
 }

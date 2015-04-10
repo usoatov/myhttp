@@ -202,7 +202,7 @@ func InsertTempinout(sn, line string) bool {
 	const layout = "2006-01-02 15:04:05"
 	tInout, _ := time.Parse(layout, dt)
 	tLastreq, _ := time.Parse(layout, lastreq)
-	dur := -3 * time.Minute
+	dur := -30 * time.Hour
 	tLastreq = tLastreq.Add(dur)
 
 	if tLastreq.Unix() > tInout.Unix() {
