@@ -198,16 +198,18 @@ func InsertTempinout(sn, line string) bool {
 	Update_stamp(sn, dt)
 	//fmt.Println("pin=", pin, "dt=", dt, eventcode, verify)
 
-	lastreq := GetLastreq(sn)
+	//Inout eskiligini tekshirish tInout inout time tLasreq last request time
+	/*lastreq := GetLastreq(sn)
 	const layout = "2006-01-02 15:04:05"
 	tInout, _ := time.Parse(layout, dt)
 	tLastreq, _ := time.Parse(layout, lastreq)
-	dur := -30 * time.Hour
+	dur := -360 * time.Hour //15 kun orqaga qaytarish
 	tLastreq = tLastreq.Add(dur)
 
-	if tLastreq.Unix() > tInout.Unix() {
+	// Bu yerda eski danniylar comtroli
+	/*if tLastreq.Unix() > tInout.Unix() {
 		return false
-	}
+	}*/
 	stmt, err := db.Prepare("INSERT INTO `temp_inout` (deviceSN, pin, time, status, verify) VALUES(?, ?, ?, ?, ?)")
 	if err != nil {
 		log.Print(err)
