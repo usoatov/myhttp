@@ -199,17 +199,17 @@ func InsertTempinout(sn, line string) bool {
 	//fmt.Println("pin=", pin, "dt=", dt, eventcode, verify)
 
 	//Inout eskiligini tekshirish tInout inout time tLasreq last request time
-	/*lastreq := GetLastreq(sn)
+	lastreq := GetLastreq(sn)
 	const layout = "2006-01-02 15:04:05"
 	tInout, _ := time.Parse(layout, dt)
 	tLastreq, _ := time.Parse(layout, lastreq)
-	dur := -360 * time.Hour //15 kun orqaga qaytarish
+	dur := -40 * time.Hour //necha soat orqaga qaytarish
 	tLastreq = tLastreq.Add(dur)
 
 	// Bu yerda eski danniylar comtroli
-	/*if tLastreq.Unix() > tInout.Unix() {
+	if tLastreq.Unix() > tInout.Unix() {
 		return false
-	}*/
+	}
 	stmt, err := db.Prepare("INSERT INTO `temp_inout` (deviceSN, pin, time, status, verify) VALUES(?, ?, ?, ?, ?)")
 	if err != nil {
 		log.Print(err)
@@ -557,6 +557,8 @@ func Add_Server_command(sid, emp, sn, pin, fid, fpt string) bool {
 		log.Print(res)
 		return false
 	}
+
+	stmt.Close()
 
 	return true
 }
