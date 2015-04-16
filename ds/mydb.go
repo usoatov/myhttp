@@ -149,11 +149,12 @@ func Options(sn string) Opts {
 }
 
 func Lastrequesttime(sn string) bool {
+	/*defer stmt.Close
 	stmt, err := db.Prepare("update device set lastRequestTime=NOW() where serialnumber=?")
 	if err != nil {
 		log.Print(err)
-	}
-	res, err := stmt.Exec(sn)
+	}*/
+	res, err := db.Exec("update device set lastRequestTime=NOW() where serialnumber=?", sn)
 	if err != nil {
 		log.Print(err)
 		log.Print(res)
@@ -163,11 +164,11 @@ func Lastrequesttime(sn string) bool {
 }
 
 func Transfertime(id string) bool {
-	stmt, err := db.Prepare("update devicecmds set commandTransferTime=NOW() where id=?")
+	/*stmt, err := db.Prepare("update devicecmds set commandTransferTime=NOW() where id=?")
 	if err != nil {
 		log.Print(err)
-	}
-	res, err := stmt.Exec(id)
+	}*/
+	res, err := db.Exec("update devicecmds set commandTransferTime=NOW() where id=?", id)
 	if err != nil {
 		log.Print(err)
 		log.Print(res)
@@ -210,11 +211,11 @@ func InsertTempinout(sn, line string) bool {
 	if tLastreq.Unix() > tInout.Unix() {
 		return false
 	}
-	stmt, err := db.Prepare("INSERT INTO `temp_inout` (deviceSN, pin, time, status, verify) VALUES(?, ?, ?, ?, ?)")
+	/*stmt, err := db.Prepare("INSERT INTO `temp_inout` (deviceSN, pin, time, status, verify) VALUES(?, ?, ?, ?, ?)")
 	if err != nil {
 		log.Print(err)
-	}
-	res, err := stmt.Exec(sn, pin, dt, eventcode, verify)
+	}*/
+	res, err := db.Exec("INSERT INTO `temp_inout` (deviceSN, pin, time, status, verify) VALUES(?, ?, ?, ?, ?)", sn, pin, dt, eventcode, verify)
 	if err != nil {
 		log.Print(err)
 		log.Print(res)
@@ -244,12 +245,12 @@ func Device_Pin(d_id, pincode string) string {
 }
 
 func DeleteAllFP(emp_id string) bool {
-	stmt, err := db.Prepare("delete from fingerprint where employeeID=?")
+	/*stmt, err := db.Prepare("delete from fingerprint where employeeID=?")
 	if err != nil {
 		log.Print(err)
 		return false
-	}
-	_, err = stmt.Exec(emp_id)
+	}*/
+	_, err := db.Exec("delete from fingerprint where employeeID=?", emp_id)
 	if err != nil {
 		log.Print(err)
 		return false
@@ -266,12 +267,12 @@ func Update_pwd(emp_id, pwd string) bool {
 		s.String = pwd
 	}
 
-	stmt, err := db.Prepare("update employee set passwd=? where ID=?")
+	/*stmt, err := db.Prepare("update employee set passwd=? where ID=?")
 	if err != nil {
 		log.Print(err)
-	}
+	}*/
 
-	_, err = stmt.Exec(s, emp_id)
+	_, err := db.Exec("update employee set passwd=? where ID=?", s, emp_id)
 	if err != nil {
 		//log.Print(err)
 		return false
@@ -450,11 +451,11 @@ func Get_loc_devices(loc_id string, d_gr int) []string {
 }
 
 func Update_photostamp(sn, phs string) bool {
-	stmt, err := db.Prepare("update device set photoStamp=? where serialnumber=?")
+	/*stmt, err := db.Prepare("update device set photoStamp=? where serialnumber=?")
 	if err != nil {
 		log.Print(err)
-	}
-	res, err := stmt.Exec(phs, sn)
+	}*/
+	res, err := db.Exec("update device set photoStamp=? where serialnumber=?", phs, sn)
 	if err != nil {
 		log.Print(err)
 		log.Print(res)
@@ -471,11 +472,11 @@ func Update_stamp(sn, sta string) bool {
 	nt := t2.Local()
 	nx := nt.Unix()
 
-	stmt, err := db.Prepare("update device set attLogStamp=? where serialnumber=?")
+	/*stmt, err := db.Prepare("update device set attLogStamp=? where serialnumber=?")
 	if err != nil {
 		log.Print(err)
-	}
-	res, err := stmt.Exec(nx, sn)
+	}*/
+	res, err := db.Exec("update device set attLogStamp=? where serialnumber=?", nx, sn)
 	if err != nil {
 		log.Print(err)
 		log.Print(res)
@@ -486,11 +487,11 @@ func Update_stamp(sn, sta string) bool {
 }
 
 func Update_opstamp(sn, op string) bool {
-	stmt, err := db.Prepare("update device set operLogStamp=? where serialnumber=?")
+	/*stmt, err := db.Prepare("update device set operLogStamp=? where serialnumber=?")
 	if err != nil {
 		log.Print(err)
-	}
-	res, err := stmt.Exec(op, sn)
+	}*/
+	res, err := db.Exec("update device set operLogStamp=? where serialnumber=?", op, sn)
 	if err != nil {
 		log.Print(err)
 		log.Print(res)
@@ -527,11 +528,11 @@ func Add_Gprs_command(cmnd, d_id, pin, fid, fp string) bool {
 
 	cmd_status := 1
 
-	stmt, err := db.Prepare("INSERT INTO devicecmds (deviceID, CmdContent, CmdCommitTime, cmdStatus, pinCode, command) VALUES(?, ?, NOW(), ?, ?, ?)")
+	/*stmt, err := db.Prepare("INSERT INTO devicecmds (deviceID, CmdContent, CmdCommitTime, cmdStatus, pinCode, command) VALUES(?, ?, NOW(), ?, ?, ?)")
 	if err != nil {
 		log.Print(err)
-	}
-	res, err := stmt.Exec(d_id, cmd_content, cmd_status, pin, cmnd)
+	}*/
+	res, err := db.Exec("INSERT INTO devicecmds (deviceID, CmdContent, CmdCommitTime, cmdStatus, pinCode, command) VALUES(?, ?, NOW(), ?, ?, ?)", d_id, cmd_content, cmd_status, pin, cmnd)
 	if err != nil {
 		log.Print(err)
 		log.Print(res)
@@ -547,18 +548,15 @@ func Add_Server_command(sid, emp, sn, pin, fid, fpt string) bool {
 	code := "5"
 	mode := "0"
 
-	stmt, err := db.Prepare("INSERT INTO command (code, mode, serverID, serialNumber, employeeID, pinCode, finger, fingerprint, status) VALUES(?, ?, ?, ?, ?, ?, ?, ?, 0)")
+	/*stmt, err := db.Prepare("INSERT INTO command (code, mode, serverID, serialNumber, employeeID, pinCode, finger, fingerprint, status) VALUES(?, ?, ?, ?, ?, ?, ?, ?, 0)")
 	if err != nil {
 		log.Print(err)
-	}
-	res, err := stmt.Exec(code, mode, sid, sn, emp, pin, fid, fpt)
+	}*/
+	res, err := db.Exec("INSERT INTO command (code, mode, serverID, serialNumber, employeeID, pinCode, finger, fingerprint, status) VALUES(?, ?, ?, ?, ?, ?, ?, ?, 0)", code, mode, sid, sn, emp, pin, fid, fpt)
 	if err != nil {
-		log.Print(err)
-		log.Print(res)
+		log.Print(res, err)
 		return false
 	}
-
-	stmt.Close()
 
 	return true
 }
@@ -764,11 +762,11 @@ func Update_Cmdstatus(sn, cmdid, rvalue, cmd string) {
 		}
 		//fmt.Println(cmdstatus)
 
-		stmt, err := db.Prepare("update devicecmds set commandOverTime=NOW(), cmdStatus=?, Rvalue=?, returnCMD=? where id=?")
+		/*stmt, err := db.Prepare("update devicecmds set commandOverTime=NOW(), cmdStatus=?, Rvalue=?, returnCMD=? where id=?")
 		if err != nil {
 			log.Print(err)
-		}
-		res, err := stmt.Exec(cmdstatus, rvalue, cmd, cmdid)
+		}*/
+		res, err := db.Exec("update devicecmds set commandOverTime=NOW(), cmdStatus=?, Rvalue=?, returnCMD=? where id=?", cmdstatus, rvalue, cmd, cmdid)
 		if err != nil {
 			log.Print(err)
 			log.Print(res)
