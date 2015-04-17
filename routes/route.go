@@ -80,6 +80,10 @@ func Cdata_get(c web.C, w http.ResponseWriter, r *http.Request) {
 	resp += fmt.Sprintf("Realtime=%s\n", opt.Realtime)
 	resp += fmt.Sprintf("Encrypt=%s\n", opt.Encrypt)
 
+	if opt.Stamp == "" || opt.Opstamp == "" || opt.Photostamp == "" || opt.Errdel == "" || opt.Delay == "" || opt.Transtime == "" || opt.Transint == "" || opt.Timezone == "" || opt.Realtime == "" || opt.Encrypt == "" {
+		resp = "error"
+	}
+
 	fmt.Fprintf(w, resp)
 	fmt.Println(resp)
 	logs.All_File(sn, "all", resp)
@@ -223,13 +227,15 @@ func Cdata_post(c web.C, w http.ResponseWriter, r *http.Request) {
 					continue
 				}*/
 				logs.All(sn, "all", "Processing line "+line[j])
-				if line[j][:5] != "OPLOG" {
-					r := mydb.InsertTempinout(sn, line[j])
-					if r {
-						logs.All(sn, "all", "Inserted inout "+line[j])
-					} else {
-						logs.All(sn, "all", "Error insering inout "+line[j])
-						logs.All_File(sn, "errors", "Error insering inout "+line[j])
+				if len(line[j]) > 5 {
+					if line[j][:5] != "OPLOG" {
+						r := mydb.InsertTempinout(sn, line[j])
+						if r {
+							logs.All(sn, "all", "Inserted inout "+line[j])
+						} else {
+							logs.All(sn, "all", "Error insering inout "+line[j])
+							logs.All_File(sn, "errors", "Error insering inout "+line[j])
+						}
 					}
 				} else {
 					r := mydb.InsertOplogData(sn, line[j])

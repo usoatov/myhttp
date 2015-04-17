@@ -131,6 +131,8 @@ func Comp_id(sn string) string {
 
 func Options(sn string) Opts {
 	var opres Opts
+	sql := "select attLogStamp, operLogStamp, photoStamp, errorDelay, delay, transTimes, transInterval, realtime, encrypt, timeZoneAdj from device where serialnumber=?" + sn
+	fmt.Println(sql)
 	rows, err := db.Query("select attLogStamp, operLogStamp, photoStamp, errorDelay, delay, transTimes, transInterval, realtime, encrypt, timeZoneAdj from device where serialnumber=?", sn)
 	//	rows, err := db.Query("select attLogStamp as Stamp from device where serialnumber=?", sn)
 	if err != nil {
@@ -142,8 +144,10 @@ func Options(sn string) Opts {
 		if err != nil {
 			log.Println("ERROR in Scan")
 			log.Print(err)
+			logs.All(sn, "errors", err.Error())
 		}
 	}
+	fmt.Println(opres.Timezone)
 
 	return opres
 }
@@ -155,6 +159,22 @@ func Lastrequesttime(sn string) bool {
 		log.Print(err)
 	}*/
 	res, err := db.Exec("update device set lastRequestTime=NOW() where serialnumber=?", sn)
+	if err != nil {
+		log.Print(err)
+		log.Print(res)
+		return false
+	}
+	return true
+}
+
+func UpdateLastInout(sn, dt string) bool {
+	fmt.Println("Lastinout upd", dt)
+	/*defer stmt.Close
+	stmt, err := db.Prepare("update device set lastRequestTime=NOW() where serialnumber=?")
+	if err != nil {
+		log.Print(err)
+	}*/
+	res, err := db.Exec("update device set lastInoutTime=? where serialnumber=?", dt, sn)
 	if err != nil {
 		log.Print(err)
 		log.Print(res)
@@ -188,6 +208,17 @@ func GetLastreq(sn string) string {
 	return gl
 }
 
+func GetLastinout(sn string) string {
+	var gl string
+
+	err := db.QueryRow("select lastInoutTime from device where serialNumber = ?", sn).Scan(&gl)
+	if err != nil {
+		log.Print(err)
+		return ""
+	}
+	return gl
+}
+
 func InsertTempinout(sn, line string) bool {
 	ls := strings.Split(line, "\t")
 	pin := ls[0]
@@ -200,15 +231,15 @@ func InsertTempinout(sn, line string) bool {
 	//fmt.Println("pin=", pin, "dt=", dt, eventcode, verify)
 
 	//Inout eskiligini tekshirish tInout inout time tLasreq last request time
-	lastreq := GetLastreq(sn)
+	lastinout := GetLastinout(sn)
 	const layout = "2006-01-02 15:04:05"
 	tInout, _ := time.Parse(layout, dt)
-	tLastreq, _ := time.Parse(layout, lastreq)
-	dur := -40 * time.Hour //necha soat orqaga qaytarish
-	tLastreq = tLastreq.Add(dur)
+	tLastinout, _ := time.Parse(layout, lastinout)
+	/*dur := -40 * time.Hour //necha soat orqaga qaytarish
+	tLastreq = tLastinout.Add(dur)*/
 
 	// Bu yerda eski danniylar comtroli
-	if tLastreq.Unix() > tInout.Unix() {
+	if tLastinout.Unix() > tInout.Unix() {
 		return false
 	}
 	/*stmt, err := db.Prepare("INSERT INTO `temp_inout` (deviceSN, pin, time, status, verify) VALUES(?, ?, ?, ?, ?)")
@@ -221,6 +252,8 @@ func InsertTempinout(sn, line string) bool {
 		log.Print(res)
 		return false
 	}
+
+	UpdateLastInout(sn, dt)
 
 	return true
 }
