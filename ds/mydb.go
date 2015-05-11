@@ -130,6 +130,7 @@ func Comp_id(sn string) string {
 }
 
 func Options(sn string) Opts {
+	fmt.Println("opt boshlan")
 	var opres Opts
 	sql := "select attLogStamp, operLogStamp, photoStamp, errorDelay, delay, transTimes, transInterval, realtime, encrypt, timeZoneAdj from device where serialnumber=?" + sn
 	fmt.Println(sql)
@@ -235,8 +236,8 @@ func InsertTempinout(sn, line string) bool {
 	const layout = "2006-01-02 15:04:05"
 	tInout, _ := time.Parse(layout, dt)
 	tLastinout, _ := time.Parse(layout, lastinout)
-	/*dur := -40 * time.Hour //necha soat orqaga qaytarish
-	tLastreq = tLastinout.Add(dur)*/
+	dur := -12 * time.Hour //necha soat orqaga qaytarish
+	tLastinout = tLastinout.Add(dur)
 
 	// Bu yerda eski danniylar comtroli
 	if tLastinout.Unix() > tInout.Unix() {

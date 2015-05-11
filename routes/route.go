@@ -65,6 +65,7 @@ func Cdata_get(c web.C, w http.ResponseWriter, r *http.Request) {
 
 	// mysql connect
 	opt := mydb.Options(sn)
+	fmt.Println(opt)
 	transflag := "TransData AttLog\tOpLog\tEnrollUser\tChgUser\tChgFP\tAttPhoto\tEnrollFP"
 
 	resp := fmt.Sprintf("GET OPTION FROM: %s\n", sn)
@@ -161,9 +162,8 @@ func Fdata_post(c web.C, w http.ResponseWriter, r *http.Request) {
 	} else {
 		logs.All(sn, "errors", "Error reading photo tmp.jpg")
 
-		fmt.Fprintf(w, "OK")
-
 	}
+	fmt.Fprintf(w, "OK")
 }
 
 func ImageRead(ImageFile string, format string) (image image.Image) {
